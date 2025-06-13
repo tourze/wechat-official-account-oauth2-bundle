@@ -4,5 +4,13 @@ services:
     autowire: true      # Automatically injects dependencies in your services.
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-#  Tourze\WechatOfficialAccountOAuth2Bundle\EventSubscriber\:
-#    resource: '../../EventSubscriber/'
+  Tourze\WechatOfficialAccountOAuth2Bundle\Command\:
+    resource: '../../Command/'
+  Tourze\WechatOfficialAccountOAuth2Bundle\Controller\:
+    resource: '../../Controller/'
+  Tourze\WechatOfficialAccountOAuth2Bundle\EventSubscriber\:
+    resource: '../../EventSubscriber/'
+  Tourze\WechatOfficialAccountOAuth2Bundle\Repository\:
+    resource: '../../Repository/'
+  Tourze\WechatOfficialAccountOAuth2Bundle\Service\:
+    resource: '../../Service/'
