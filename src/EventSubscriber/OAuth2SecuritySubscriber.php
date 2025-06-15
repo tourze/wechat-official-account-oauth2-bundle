@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Tourze\WechatOfficialAccountOAuth2Bundle\Service\OAuth2Service;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
 
 /**
  * OAuth2安全事件订阅器
@@ -20,7 +20,7 @@ class OAuth2SecuritySubscriber implements EventSubscriberInterface
     ];
 
     public function __construct(
-        private OAuth2Service $oauth2Service
+        private WechatOAuth2Service $oauth2Service
     ) {
     }
 

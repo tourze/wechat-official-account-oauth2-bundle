@@ -34,7 +34,7 @@ class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findExpiredCodes(\DateTime $beforeDate = null): array
+    public function findExpiredCodes(?\DateTime $beforeDate = null): array
     {
         $beforeDate = $beforeDate ?: new \DateTime();
         
@@ -50,7 +50,7 @@ class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
         return $this->findBy(['used' => true]);
     }
 
-    public function deleteExpiredCodes(\DateTime $beforeDate = null): int
+    public function deleteExpiredCodes(?\DateTime $beforeDate = null): int
     {
         $beforeDate = $beforeDate ?: new \DateTime();
         

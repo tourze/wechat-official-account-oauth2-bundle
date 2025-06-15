@@ -28,7 +28,17 @@ class OAuth2AuthorizationService
      */
     public function buildWechatAuthUrl(Account $account, string $scope, string $redirectUri): string
     {
-        return $this->wechatOAuth2Service->buildAuthorizationUrl($account, $redirectUri, $scope, 'oauth2');
+        $params = [
+            'appid' => $account->getAppId(),
+            'redirect_uri' => $redirectUri,
+            'response_type' => 'code',
+            'scope' => $scope,
+            'state' => 'oauth2',
+        ];
+
+        $queryString = http_build_query($params);
+        
+        return "https://open.weixin.qq.com/connect/oauth2/authorize?{$queryString}#wechat_redirect";
     }
 
     /**

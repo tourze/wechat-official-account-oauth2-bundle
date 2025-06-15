@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\OAuth2AuthorizationCode;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Service\OAuth2AuthorizationService;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
 
@@ -16,6 +17,7 @@ class OAuth2AuthorizationServiceTest extends TestCase
 {
     private EntityManagerInterface $entityManager;
     private OfficialAccountClient $wechatClient;
+    private WechatOAuth2Service $wechatOAuth2Service;
     private OAuth2AuthorizationService $service;
 
     public function testBuildWechatAuthUrl(): void
@@ -215,10 +217,12 @@ class OAuth2AuthorizationServiceTest extends TestCase
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->wechatClient = $this->createMock(OfficialAccountClient::class);
+        $this->wechatOAuth2Service = $this->createMock(WechatOAuth2Service::class);
 
         $this->service = new OAuth2AuthorizationService(
             $this->entityManager,
-            $this->wechatClient
+            $this->wechatClient,
+            $this->wechatOAuth2Service
         );
     }
 }
