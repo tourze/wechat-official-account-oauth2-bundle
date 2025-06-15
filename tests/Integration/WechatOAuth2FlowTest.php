@@ -18,9 +18,13 @@ class WechatOAuth2FlowTest extends WebTestCase
         $env = $options['environment'] ?? $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'test';
         $debug = $options['debug'] ?? $_ENV['APP_DEBUG'] ?? $_SERVER['APP_DEBUG'] ?? true;
 
-        return new IntegrationTestKernel($env, $debug, [
-            WechatOfficialAccountOAuth2Bundle::class => ['all' => true],
-        ]);
+        return new IntegrationTestKernel(
+            $env, 
+            $debug, 
+            [
+                WechatOfficialAccountOAuth2Bundle::class => ['all' => true],
+            ]
+        );
     }
 
     public function testAuthorizeRedirectsToWechat(): void
