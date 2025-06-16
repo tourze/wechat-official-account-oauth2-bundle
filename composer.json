@@ -29,7 +29,6 @@
     "tourze/doctrine-user-bundle": "0.0.*",
     "tourze/easy-admin-attribute": "0.1.*",
     "tourze/http-client-bundle": "0.1.*",
-    "tourze/symfony-integration-test-kernel": "0.0.*",
     "tourze/symfony-routing-auto-loader-bundle": "0.0.*",
     "tourze/wechat-official-account-bundle": "0.1.*"
   },

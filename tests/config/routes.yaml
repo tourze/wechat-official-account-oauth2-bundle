@@ -1,6 +1,12 @@
-wechat_oauth2:
-    resource: '@WechatOfficialAccountOAuth2Bundle/Controller/'
-    type: attribute
+wechat_oauth2_authorize:
+    path: /wechat/oauth2/authorize
+    controller: Tourze\WechatOfficialAccountOAuth2Bundle\Controller\WechatOAuth2Controller::authorize
+    methods: [GET]
+
+wechat_oauth2_callback:
+    path: /wechat/oauth2/callback
+    controller: Tourze\WechatOfficialAccountOAuth2Bundle\Controller\WechatOAuth2Controller::callback
+    methods: [GET]
 
 app_home:
     path: /
