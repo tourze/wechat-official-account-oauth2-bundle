@@ -27,6 +27,9 @@ class WechatOAuth2UserRepository extends ServiceEntityRepository
         return $this->findOneBy(['openid' => $openid]);
     }
 
+    /**
+     * @return array<WechatOAuth2User>
+     */
     public function findByUnionid(string $unionid): array
     {
         return $this->findBy(['unionid' => $unionid]);
@@ -101,6 +104,9 @@ class WechatOAuth2UserRepository extends ServiceEntityRepository
         return $user;
     }
 
+    /**
+     * @return array<WechatOAuth2User>
+     */
     public function findExpiredTokenUsers(): array
     {
         return $this->createQueryBuilder('u')

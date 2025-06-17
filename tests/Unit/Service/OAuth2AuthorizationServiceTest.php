@@ -15,9 +15,9 @@ use WechatOfficialAccountBundle\Service\OfficialAccountClient;
  */
 class OAuth2AuthorizationServiceTest extends TestCase
 {
-    private EntityManagerInterface $entityManager;
-    private OfficialAccountClient $wechatClient;
-    private WechatOAuth2Service $wechatOAuth2Service;
+    private EntityManagerInterface|\PHPUnit\Framework\MockObject\MockObject $entityManager;
+    private OfficialAccountClient|\PHPUnit\Framework\MockObject\MockObject $wechatClient;
+    private WechatOAuth2Service|\PHPUnit\Framework\MockObject\MockObject $wechatOAuth2Service;
     private OAuth2AuthorizationService $service;
 
     public function testBuildWechatAuthUrl(): void
@@ -43,13 +43,11 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $account = new Account();
         $account->setAppId('test_app_id');
 
-        $this->entityManager
-            ->expects($this->once())
+        $this->entityManager->expects($this->once())
             ->method('persist')
             ->with($this->isInstanceOf(OAuth2AuthorizationCode::class));
 
-        $this->entityManager
-            ->expects($this->once())
+        $this->entityManager->expects($this->once())
             ->method('flush');
 
         $authCode = $this->service->createAuthorizationCode(
@@ -68,7 +66,9 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $this->assertEquals('snsapi_base', $authCode->getScopes());
         $this->assertEquals('test_state', $authCode->getState());
         $this->assertEquals($account, $authCode->getWechatAccount());
-        $this->assertStringStartsWith('AC_', $authCode->getCode());
+        $code = $authCode->getCode();
+        $this->assertIsString($code);
+        $this->assertStringStartsWith('AC_', $code);
         $this->assertFalse($authCode->isExpired());
     }
 
@@ -87,8 +87,7 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $authCode->setUsed(false);
 
         $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
-        $repository
-            ->expects($this->once())
+        $repository->expects($this->once())
             ->method('findOneBy')
             ->with([
                 'code' => 'test_code',
@@ -97,17 +96,14 @@ class OAuth2AuthorizationServiceTest extends TestCase
             ])
             ->willReturn($authCode);
 
-        $this->entityManager
-            ->expects($this->once())
+        $this->entityManager->expects($this->once())
             ->method('getRepository')
             ->willReturn($repository);
 
-        $this->entityManager
-            ->expects($this->exactly(2))
+        $this->entityManager->expects($this->exactly(2))
             ->method('persist');
 
-        $this->entityManager
-            ->expects($this->once())
+        $this->entityManager->expects($this->once())
             ->method('flush');
 
         $accessToken = $this->service->exchangeCodeForToken(
@@ -119,8 +115,12 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $this->assertEquals('test_openid', $accessToken->getOpenid());
         $this->assertEquals('snsapi_base', $accessToken->getScopes());
         $this->assertEquals($account, $accessToken->getWechatAccount());
-        $this->assertStringStartsWith('AT_', $accessToken->getAccessToken());
-        $this->assertStringStartsWith('RT_', $accessToken->getRefreshToken());
+        $accessTokenStr = $accessToken->getAccessToken();
+        $refreshTokenStr = $accessToken->getRefreshToken();
+        $this->assertIsString($accessTokenStr);
+        $this->assertIsString($refreshTokenStr);
+        $this->assertStringStartsWith('AT_', $accessTokenStr);
+        $this->assertStringStartsWith('RT_', $refreshTokenStr);
         $this->assertTrue($authCode->isUsed());
     }
 
@@ -130,13 +130,11 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $account->setAppId('test_app_id');
 
         $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
-        $repository
-            ->expects($this->once())
+        $repository->expects($this->once())
             ->method('findOneBy')
             ->willReturn(null);
 
-        $this->entityManager
-            ->expects($this->once())
+        $this->entityManager->expects($this->once())
             ->method('getRepository')
             ->willReturn($repository);
 
@@ -161,13 +159,11 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $authCode->setUsed(false);
 
         $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
-        $repository
-            ->expects($this->once())
+        $repository->expects($this->once())
             ->method('findOneBy')
             ->willReturn($authCode);
 
-        $this->entityManager
-            ->expects($this->once())
+        $this->entityManager->expects($this->once())
             ->method('getRepository')
             ->willReturn($repository);
 
@@ -193,13 +189,11 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $authCode->setUsed(false);
 
         $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
-        $repository
-            ->expects($this->once())
+        $repository->expects($this->once())
             ->method('findOneBy')
             ->willReturn($authCode);
 
-        $this->entityManager
-            ->expects($this->once())
+        $this->entityManager->expects($this->once())
             ->method('getRepository')
             ->willReturn($repository);
 

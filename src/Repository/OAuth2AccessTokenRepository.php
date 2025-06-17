@@ -70,6 +70,9 @@ class OAuth2AccessTokenRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * @return array<OAuth2AccessToken>
+     */
     public function findExpiredTokens(?\DateTime $beforeDate = null): array
     {
         $beforeDate = $beforeDate ?: new \DateTime();
@@ -81,6 +84,9 @@ class OAuth2AccessTokenRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return array<OAuth2AccessToken>
+     */
     public function findRevokedTokens(): array
     {
         return $this->findBy(['revoked' => true]);

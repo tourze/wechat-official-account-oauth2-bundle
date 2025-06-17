@@ -45,7 +45,8 @@ class OAuth2ConfigureCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $accountId = $input->getArgument('account-id');
+        $accountIdArg = $input->getArgument('account-id');
+        $accountId = is_scalar($accountIdArg) ? (string) $accountIdArg : '';
 
         $account = $this->accountRepository->find($accountId);
         if (!$account) {
@@ -64,16 +65,20 @@ class OAuth2ConfigureCommand extends Command
         }
 
         // Update configuration
-        $config->setScope($input->getOption('scope'));
-        
-        if ($input->getOption('disable')) {
-            $config->setIsEnabled(false);
-        } else {
-            $config->setIsEnabled(true);
+        $scope = $input->getOption('scope');
+        if (is_string($scope) || $scope === null) {
+            $config->setScope($scope);
         }
         
-        if ($input->getOption('remark')) {
-            $config->setRemark($input->getOption('remark'));
+        if ($input->getOption('disable')) {
+            $config->setValid(false);
+        } else {
+            $config->setValid(true);
+        }
+        
+        $remark = $input->getOption('remark');
+        if (is_string($remark) || $remark === null) {
+            $config->setRemark($remark);
         }
 
         $this->entityManager->persist($config);
@@ -98,7 +103,7 @@ class OAuth2ConfigureCommand extends Command
                 ['Account', $account->getName() ?: $account->getAppId()],
                 ['App ID', $account->getAppId()],
                 ['Scope', $config->getScope()],
-                ['Enabled', $config->isEnabled() ? 'Yes' : 'No'],
+                ['Enabled', $config->isValid() ? 'Yes' : 'No'],
                 ['Default', $config->isDefault() ? 'Yes' : 'No'],
                 ['Remark', $config->getRemark() ?: '-'],
             ]

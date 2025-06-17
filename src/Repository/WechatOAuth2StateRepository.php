@@ -53,6 +53,9 @@ class WechatOAuth2StateRepository extends ServiceEntityRepository
             ->execute();
     }
 
+    /**
+     * @return array<WechatOAuth2State>
+     */
     public function findUnusedBySessionId(string $sessionId): array
     {
         return $this->createQueryBuilder('s')

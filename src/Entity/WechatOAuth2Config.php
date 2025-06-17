@@ -67,7 +67,7 @@ class WechatOAuth2Config implements \Stringable
 
     public function getAppId(): string
     {
-        return $this->account->getAppId();
+        return $this->account->getAppId() ?? '';
     }
 
     public function getId(): ?string
@@ -88,7 +88,7 @@ class WechatOAuth2Config implements \Stringable
 
     public function getAppSecret(): string
     {
-        return $this->account->getAppSecret();
+        return $this->account->getAppSecret() ?? '';
     }
 
     public function getScope(): ?string

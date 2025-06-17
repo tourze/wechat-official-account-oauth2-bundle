@@ -39,7 +39,8 @@ class OAuth2CreateApplicationCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         
-        $wechatAccountId = $input->getArgument('wechat-account-id');
+        $wechatAccountIdArg = $input->getArgument('wechat-account-id');
+        $wechatAccountId = is_scalar($wechatAccountIdArg) ? (string) $wechatAccountIdArg : '';
         $redirectUris = $input->getOption('redirect-uri');
         $scope = $input->getOption('scope');
 
@@ -69,7 +70,7 @@ class OAuth2CreateApplicationCommand extends Command
                 'id' => $wechatAccount->getId(),
                 'clientId' => $clientId,
                 'clientSecret' => $clientSecret,
-                'redirectUris' => $redirectUris ? implode("\n", $redirectUris) : null,
+                'redirectUris' => is_array($redirectUris) ? implode("\n", $redirectUris) : null,
                 'scopes' => $scope
             ]);
 
@@ -82,7 +83,7 @@ class OAuth2CreateApplicationCommand extends Command
                     ['Client ID', $clientId],
                     ['Client Secret', $clientSecret],
                     ['权限范围', $scope],
-                    ['回调URI', $redirectUris ? implode(', ', $redirectUris) : '无'],
+                    ['回调URI', is_array($redirectUris) ? implode(', ', $redirectUris) : '无'],
                 ]
             );
 

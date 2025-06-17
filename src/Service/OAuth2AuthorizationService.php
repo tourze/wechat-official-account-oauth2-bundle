@@ -46,30 +46,42 @@ class OAuth2AuthorizationService
      */
     public function getUserInfoByCode(Account $account, string $code): array
     {
-        // 1. 使用code换取access_token
-        $tokenResponse = $this->wechatOAuth2Service->getAccessTokenByCode($account, $code);
+        // 获取默认配置
+        $config = $this->entityManager->getRepository(\Tourze\WechatOfficialAccountOAuth2Bundle\Entity\WechatOAuth2Config::class)
+            ->findOneBy(['account' => $account, 'valid' => true]);
+            
+        if (!$config) {
+            throw new \RuntimeException('No valid OAuth2 config found for account');
+        }
         
-        $accessToken = $tokenResponse['access_token'];
-        $openid = $tokenResponse['openid'];
-        $scope = $tokenResponse['scope'];
-
-        $userInfo = [
-            'openid' => $openid,
-            'scope' => $scope,
-        ];
-
-        // 如果有unionid，添加到结果中
-        if (isset($tokenResponse['unionid'])) {
-            $userInfo['unionid'] = $tokenResponse['unionid'];
+        // 使用 WechatOAuth2Service 的 exchangeCodeForToken 方法
+        // 需要创建一个假的 state 来处理这个流程
+        $state = bin2hex(random_bytes(16));
+        $stateEntity = new \Tourze\WechatOfficialAccountOAuth2Bundle\Entity\WechatOAuth2State($state, $config);
+        
+        $this->entityManager->persist($stateEntity);
+        $this->entityManager->flush();
+        
+        // 使用 handleCallback 来处理 code
+        try {
+            $user = $this->wechatOAuth2Service->handleCallback($code, $state);
+            
+            return [
+                'openid' => $user->getOpenid(),
+                'scope' => $user->getScope(),
+                'unionid' => $user->getUnionid(),
+                'nickname' => $user->getNickname(),
+                'sex' => $user->getSex(),
+                'province' => $user->getProvince(),
+                'city' => $user->getCity(),
+                'country' => $user->getCountry(),
+                'headimgurl' => $user->getHeadimgurl(),
+            ];
+        } finally {
+            // 清理临时 state
+            $this->entityManager->remove($stateEntity);
+            $this->entityManager->flush();
         }
-
-        // 2. 如果scope包含snsapi_userinfo，获取用户详细信息
-        if (str_contains($scope, 'snsapi_userinfo')) {
-            $userDetailResponse = $this->getWechatUserInfo($accessToken, $openid);
-            $userInfo = array_merge($userInfo, $userDetailResponse);
-        }
-
-        return $userInfo;
     }
 
     private function getWechatUserInfo(string $accessToken, string $openid): array

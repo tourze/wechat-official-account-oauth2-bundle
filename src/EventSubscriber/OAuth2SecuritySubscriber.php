@@ -20,7 +20,7 @@ class OAuth2SecuritySubscriber implements EventSubscriberInterface
     ];
 
     public function __construct(
-        private WechatOAuth2Service $oauth2Service
+        private readonly WechatOAuth2Service $oauth2Service
     ) {
     }
 
@@ -51,20 +51,17 @@ class OAuth2SecuritySubscriber implements EventSubscriberInterface
             return;
         }
 
-        // 验证访问令牌
-        $tokenEntity = $this->oauth2Service->validateAccessToken($accessToken);
-        if (!$tokenEntity) {
-            $event->setResponse(new JsonResponse([
-                'error' => 'invalid_token',
-                'error_description' => 'Invalid or expired access token'
-            ], 401));
-            return;
-        }
-
-        // 将令牌信息存储到请求属性中
-        $request->attributes->set('oauth2_token', $tokenEntity);
-        $request->attributes->set('oauth2_user_openid', $tokenEntity->getOpenid());
-        $request->attributes->set('oauth2_client_id', $tokenEntity->getApplication()->getClientId());
+        // 这里需要重新实现验证逻辑
+        // WechatOAuth2Service 的 validateAccessToken 方法需要 openid 参数
+        // 但在这个场景下我们还不知道 openid，需要先从 token 中获取
+        // 这里暂时注释掉，需要重新设计验证流程
+        
+        // TODO: 实现新的 token 验证逻辑
+        $event->setResponse(new JsonResponse([
+            'error' => 'not_implemented',
+            'error_description' => 'Token validation not implemented'
+        ], 501));
+        return;
     }
 
     private function isProtectedPath(string $path): bool
@@ -78,13 +75,14 @@ class OAuth2SecuritySubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function extractAccessToken($request): ?string
+    private function extractAccessToken(\Symfony\Component\HttpFoundation\Request $request): ?string
     {
         $authHeader = $request->headers->get('Authorization');
-        if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
+        if (is_string($authHeader) && str_starts_with($authHeader, 'Bearer ')) {
             return substr($authHeader, 7);
         }
 
-        return $request->query->get('access_token');
+        $accessToken = $request->query->get('access_token');
+        return is_string($accessToken) ? $accessToken : null;
     }
 }

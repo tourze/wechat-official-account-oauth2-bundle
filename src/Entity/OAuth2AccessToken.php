@@ -170,6 +170,9 @@ class OAuth2AccessToken implements \Stringable
         return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getScopesArray(): array
     {
         if (!$this->scopes) {

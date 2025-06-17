@@ -21,6 +21,9 @@ class RefreshAccessTokenRequest extends ApiRequest
         return 'https://api.weixin.qq.com/sns/oauth2/refresh_token';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRequestOptions(): ?array
     {
         return [

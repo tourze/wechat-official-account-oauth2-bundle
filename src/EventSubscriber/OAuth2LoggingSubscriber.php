@@ -97,16 +97,17 @@ class OAuth2LoggingSubscriber implements EventSubscriberInterface
         // 如果是错误响应，记录更多详细信息
         if ($statusCode >= 400) {
             $content = $response->getContent();
-            $errorData = json_decode($content, true);
-
-            $this->logger->error('OAuth2 error response', [
-                'path' => $path,
-                'status_code' => $statusCode,
-                'client_id' => $clientId,
-                'error' => $errorData['error'] ?? null,
-                'error_description' => $errorData['error_description'] ?? null,
-                'ip_address' => $request->getClientIp(),
-            ]);
+            if (is_string($content)) {
+                $errorData = json_decode($content, true);
+                $this->logger->error('OAuth2 error response', [
+                    'path' => $path,
+                    'status_code' => $statusCode,
+                    'client_id' => $clientId,
+                    'error' => is_array($errorData) && isset($errorData['error']) ? $errorData['error'] : null,
+                    'error_description' => is_array($errorData) && isset($errorData['error_description']) ? $errorData['error_description'] : null,
+                    'ip_address' => $request->getClientIp(),
+                ]);
+            }
         }
     }
 }

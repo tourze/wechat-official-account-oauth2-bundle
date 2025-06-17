@@ -50,6 +50,6 @@ class WechatOAuth2ConfigRepository extends ServiceEntityRepository
 
     public function clearCache(): void
     {
-        $this->getEntityManager()->clear(WechatOAuth2Config::class);
+        $this->getEntityManager()->clear();
     }
 }

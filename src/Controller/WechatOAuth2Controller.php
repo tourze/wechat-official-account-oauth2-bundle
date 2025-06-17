@@ -33,7 +33,7 @@ class WechatOAuth2Controller extends AbstractController
             $sessionId = $request->getSession()->getId();
             $scope = $request->query->get('scope');
             
-            $authUrl = $this->oauth2Service->generateAuthorizationUrl($sessionId, $scope);
+            $authUrl = $this->oauth2Service->generateAuthorizationUrl($sessionId, is_string($scope) ? $scope : null);
             
             return $this->redirect($authUrl);
         } catch (WechatOAuth2Exception $e) {
@@ -68,7 +68,7 @@ class WechatOAuth2Controller extends AbstractController
             ]);
         }
         
-        if (!$code || !$state) {
+        if (!is_string($code) || !is_string($state)) {
             throw $this->createNotFoundException('Invalid callback parameters');
         }
         

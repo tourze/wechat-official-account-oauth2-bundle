@@ -57,6 +57,7 @@ class WechatOAuth2User implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 500, nullable: true, options: ['comment' => '用户头像URL'])]
     private ?string $headimgurl = null;
 
+    /** @var array<string>|null */
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '用户特权信息'])]
     private ?array $privilege = null;
 
@@ -76,6 +77,7 @@ class WechatOAuth2User implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, options: ['comment' => '授权作用域'])]
     private ?string $scope = null;
 
+    /** @var array<string, mixed>|null */
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '原始用户数据'])]
     private ?array $rawData = null;
 
@@ -188,11 +190,17 @@ class WechatOAuth2User implements \Stringable
         return $this;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getPrivilege(): ?array
     {
         return $this->privilege;
     }
 
+    /**
+     * @param array<string>|null $privilege
+     */
     public function setPrivilege(?array $privilege): static
     {
         $this->privilege = $privilege;
@@ -254,11 +262,17 @@ class WechatOAuth2User implements \Stringable
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRawData(): ?array
     {
         return $this->rawData;
     }
 
+    /**
+     * @param array<string, mixed>|null $rawData
+     */
     public function setRawData(?array $rawData): static
     {
         $this->rawData = $rawData;

@@ -49,7 +49,8 @@ class OAuth2CleanupCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $dryRun = $input->getOption('dry-run');
-        $beforeDate = $this->parseDate($input->getOption('before'));
+        $beforeOption = $input->getOption('before');
+        $beforeDate = $this->parseDate(is_string($beforeOption) ? $beforeOption : '-1 hour');
 
         $io->title('OAuth2 清理工具');
         $io->text([

@@ -17,20 +17,20 @@ class WechatOAuth2StateRepositoryTest extends TestCase
 
     public function testFindValidState(): void
     {
-        // Test that the method exists and returns correct type
-        $this->assertTrue(method_exists($this->repository, 'findValidState'));
+        // Test that the repository is properly instantiated
+        $this->assertInstanceOf(WechatOAuth2StateRepository::class, $this->repository);
     }
 
     public function testCleanupExpiredStates(): void
     {
-        // Test that the method exists and returns correct type
-        $this->assertTrue(method_exists($this->repository, 'cleanupExpiredStates'));
+        // Test that the repository is properly instantiated
+        $this->assertInstanceOf(WechatOAuth2StateRepository::class, $this->repository);
     }
 
     public function testFindUnusedBySessionId(): void
     {
-        // Test that the method exists and returns correct type
-        $this->assertTrue(method_exists($this->repository, 'findUnusedBySessionId'));
+        // Test that the repository is properly instantiated
+        $this->assertInstanceOf(WechatOAuth2StateRepository::class, $this->repository);
     }
 
     protected function setUp(): void

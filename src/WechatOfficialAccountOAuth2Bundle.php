@@ -9,6 +9,9 @@ use WechatOfficialAccountBundle\WechatOfficialAccountBundle;
 
 class WechatOfficialAccountOAuth2Bundle extends Bundle implements BundleDependencyInterface
 {
+    /**
+     * @return array<class-string<\Symfony\Component\HttpKernel\Bundle\BundleInterface>, array<string, bool>>
+     */
     public static function getBundleDependencies(): array
     {
         return [
