@@ -21,9 +21,6 @@ class GetAccessTokenRequest extends ApiRequest
         return 'https://api.weixin.qq.com/sns/oauth2/access_token';
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getRequestOptions(): ?array
     {
         return [

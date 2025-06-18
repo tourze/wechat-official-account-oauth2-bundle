@@ -20,9 +20,6 @@ class GetUserInfoRequest extends WithAccountRequest
         return 'https://api.weixin.qq.com/sns/userinfo';
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getRequestOptions(): ?array
     {
         return [

@@ -19,9 +19,6 @@ class ValidateAccessTokenRequest extends ApiRequest
         return 'https://api.weixin.qq.com/sns/auth';
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getRequestOptions(): ?array
     {
         return [
