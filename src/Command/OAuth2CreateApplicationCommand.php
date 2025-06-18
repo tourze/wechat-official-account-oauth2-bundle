@@ -16,7 +16,7 @@ use WechatOfficialAccountBundle\Entity\Account;
  * OAuth2应用创建命令
  */
 #[AsCommand(
-    name: 'oauth2:create-application',
+    name: self::NAME,
     description: '创建OAuth2应用',
 )]
 class OAuth2CreateApplicationCommand extends Command

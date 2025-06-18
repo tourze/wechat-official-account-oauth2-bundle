@@ -18,7 +18,7 @@ use WechatOfficialAccountBundle\Repository\AccountRepository;
  * 配置微信OAuth2
  */
 #[AsCommand(
-    name: 'wechat:oauth2:configure',
+    name: self::NAME,
     description: 'Configure Wechat OAuth2 settings'
 )]
 class OAuth2ConfigureCommand extends Command

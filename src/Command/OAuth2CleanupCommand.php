@@ -15,7 +15,7 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AuthorizationCodeR
  * OAuth2清理命令 - 清理过期的令牌和授权码
  */
 #[AsCommand(
-    name: 'oauth2:cleanup',
+    name: self::NAME,
     description: '清理过期的OAuth2令牌和授权码',
 )]
 class OAuth2CleanupCommand extends Command

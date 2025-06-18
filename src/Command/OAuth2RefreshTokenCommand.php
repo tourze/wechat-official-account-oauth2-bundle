@@ -14,7 +14,7 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
  * 刷新过期的OAuth2令牌
  */
 #[AsCommand(
-    name: 'wechat:oauth2:refresh-tokens',
+    name: self::NAME,
     description: 'Refresh expired Wechat OAuth2 tokens'
 )]
 class OAuth2RefreshTokenCommand extends Command
