@@ -28,7 +28,7 @@ class OAuth2UserInfoService
             'scope' => $accessToken->getScopes(),
         ];
 
-        if ($accessToken->getUnionid()) {
+        if ($accessToken->getUnionid() !== null) {
             $userInfo['unionid'] = $accessToken->getUnionid();
         }
 

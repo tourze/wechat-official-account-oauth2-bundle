@@ -6,7 +6,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
 
 /**
  * OAuth2安全事件订阅器
@@ -20,7 +19,7 @@ class OAuth2SecuritySubscriber implements EventSubscriberInterface
     ];
 
     public function __construct(
-        private readonly WechatOAuth2Service $oauth2Service
+        // private readonly WechatOAuth2Service $oauth2Service
     ) {
     }
 
@@ -43,7 +42,7 @@ class OAuth2SecuritySubscriber implements EventSubscriberInterface
 
         // 提取访问令牌
         $accessToken = $this->extractAccessToken($request);
-        if (!$accessToken) {
+        if ($accessToken === null) {
             $event->setResponse(new JsonResponse([
                 'error' => 'invalid_token',
                 'error_description' => 'Access token is required'

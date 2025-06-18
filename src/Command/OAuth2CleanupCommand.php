@@ -20,6 +20,7 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AuthorizationCodeR
 )]
 class OAuth2CleanupCommand extends Command
 {
+    public const NAME = 'oauth2:cleanup';
     public function __construct(
         private readonly OAuth2AccessTokenRepository $accessTokenRepository,
         private readonly OAuth2AuthorizationCodeRepository $authorizationCodeRepository,
@@ -55,7 +56,7 @@ class OAuth2CleanupCommand extends Command
         $io->title('OAuth2 清理工具');
         $io->text([
             '清理时间: ' . $beforeDate->format('Y-m-d H:i:s'),
-            '模式: ' . ($dryRun ? '仅预览' : '实际执行'),
+            '模式: ' . ((bool) $dryRun ? '仅预览' : '实际执行'),
         ]);
 
         // 清理过期的授权码
@@ -68,7 +69,7 @@ class OAuth2CleanupCommand extends Command
             sprintf('已使用的授权码: %d 个', count($usedCodes)),
         ]);
 
-        if (!$dryRun) {
+        if (!(bool) $dryRun) {
             $deletedExpiredCodes = $this->authorizationCodeRepository->deleteExpiredCodes($beforeDate);
             $deletedUsedCodes = $this->authorizationCodeRepository->deleteUsedCodes();
             
@@ -88,7 +89,7 @@ class OAuth2CleanupCommand extends Command
             sprintf('已撤销的访问令牌: %d 个', count($revokedTokens)),
         ]);
 
-        if (!$dryRun) {
+        if (!(bool) $dryRun) {
             $deletedExpiredTokens = $this->accessTokenRepository->deleteExpiredTokens($beforeDate);
             $deletedRevokedTokens = $this->accessTokenRepository->deleteRevokedTokens();
             
@@ -98,7 +99,7 @@ class OAuth2CleanupCommand extends Command
             ]);
         }
 
-        if ($dryRun) {
+        if ((bool) $dryRun) {
             $io->note('这是预览模式，没有实际执行删除操作。使用 --no-dry-run 选项来实际执行清理。');
         } else {
             $io->success('OAuth2 清理完成！');

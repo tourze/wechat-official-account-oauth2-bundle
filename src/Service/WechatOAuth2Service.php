@@ -46,14 +46,14 @@ class WechatOAuth2Service
     public function generateAuthorizationUrl(?string $sessionId = null, ?string $scope = null): string
     {
         $config = $this->configRepository->findValidConfig();
-        if (!$config) {
+        if ($config === null) {
             throw new WechatOAuth2ConfigurationException('No valid Wechat OAuth2 configuration found');
         }
 
         $state = bin2hex(random_bytes(16));
         $stateEntity = new WechatOAuth2State($state, $config);
         
-        if ($sessionId) {
+        if ($sessionId !== null) {
             $stateEntity->setSessionId($sessionId);
         }
         
@@ -81,7 +81,7 @@ class WechatOAuth2Service
     public function handleCallback(string $code, string $state): WechatOAuth2User
     {
         $stateEntity = $this->stateRepository->findValidState($state);
-        if (!$stateEntity || !$stateEntity->isValidState()) {
+        if ($stateEntity === null || !$stateEntity->isValidState()) {
             throw new WechatOAuth2Exception('Invalid or expired state', 0, null, ['state' => $state]);
         }
 
@@ -206,15 +206,15 @@ class WechatOAuth2Service
     public function getUserInfo(string $openid, bool $forceRefresh = false): array
     {
         $user = $this->userRepository->findByOpenid($openid);
-        if (!$user) {
+        if ($user === null) {
             throw new WechatOAuth2Exception('User not found', 0, null, ['openid' => $openid]);
         }
 
-        if (!$forceRefresh && !$user->isTokenExpired() && $user->getRawData()) {
+        if (!$forceRefresh && !$user->isTokenExpired() && $user->getRawData() !== null) {
             return $user->getRawData();
         }
 
-        if ($user->isTokenExpired() && $user->getRefreshToken()) {
+        if ($user->isTokenExpired()) {
             $this->refreshToken($openid);
             $user = $this->userRepository->findByOpenid($openid);
         }
@@ -243,7 +243,7 @@ class WechatOAuth2Service
     public function refreshToken(string $openid): bool
     {
         $user = $this->userRepository->findByOpenid($openid);
-        if (!$user || !$user->getRefreshToken()) {
+        if ($user === null) {
             return false;
         }
 

@@ -4,7 +4,6 @@ namespace Tourze\WechatOfficialAccountOAuth2Bundle\Controller;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,10 +11,9 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Exception\WechatOAuth2Exception;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
 
 /**
- * 微信网页授权控制器
+ * 微信OAuth2回调控制器
  */
-#[Route('/wechat/oauth2', name: 'wechat_oauth2_')]
-class WechatOAuth2Controller extends AbstractController
+class WechatOAuth2CallbackController extends AbstractController
 {
     public function __construct(
         private readonly WechatOAuth2Service $oauth2Service,
@@ -24,33 +22,10 @@ class WechatOAuth2Controller extends AbstractController
     }
 
     /**
-     * 发起授权
-     */
-    #[Route('/authorize', name: 'authorize', methods: ['GET'])]
-    public function authorize(Request $request): RedirectResponse
-    {
-        try {
-            $sessionId = $request->getSession()->getId();
-            $scope = $request->query->get('scope');
-            
-            $authUrl = $this->oauth2Service->generateAuthorizationUrl($sessionId, is_string($scope) ? $scope : null);
-            
-            return $this->redirect($authUrl);
-        } catch (WechatOAuth2Exception $e) {
-            $this->logger?->error('Failed to generate authorization URL', [
-                'error' => $e->getMessage(),
-                'context' => $e->getContext(),
-            ]);
-            
-            throw $this->createNotFoundException('OAuth2 configuration not found');
-        }
-    }
-
-    /**
      * 处理回调
      */
-    #[Route('/callback', name: 'callback', methods: ['GET'])]
-    public function callback(Request $request): Response
+    #[Route('/wechat/oauth2/callback', name: 'wechat_oauth2_callback', methods: ['GET'])]
+    public function __invoke(Request $request): Response
     {
         $code = $request->query->get('code');
         $state = $request->query->get('state');

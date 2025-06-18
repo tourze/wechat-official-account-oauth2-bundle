@@ -23,6 +23,7 @@ use WechatOfficialAccountBundle\Repository\AccountRepository;
 )]
 class OAuth2ConfigureCommand extends Command
 {
+    public const NAME = 'wechat:oauth2:configure';
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly WechatOAuth2ConfigRepository $configRepository,
@@ -49,14 +50,14 @@ class OAuth2ConfigureCommand extends Command
         $accountId = is_scalar($accountIdArg) ? (string) $accountIdArg : '';
 
         $account = $this->accountRepository->find($accountId);
-        if (!$account) {
+        if ($account === null) {
             $io->error(sprintf('Account with ID "%s" not found.', $accountId));
             return Command::FAILURE;
         }
 
         $config = $this->configRepository->findOneBy(['account' => $account]);
         
-        if (!$config) {
+        if ($config === null) {
             $config = new WechatOAuth2Config();
             $config->setAccount($account);
             $io->note('Creating new configuration...');
@@ -70,7 +71,7 @@ class OAuth2ConfigureCommand extends Command
             $config->setScope($scope);
         }
         
-        if ($input->getOption('disable')) {
+        if ((bool) $input->getOption('disable')) {
             $config->setValid(false);
         } else {
             $config->setValid(true);
@@ -85,7 +86,7 @@ class OAuth2ConfigureCommand extends Command
         $this->entityManager->flush();
 
         // Set as default if requested
-        if ($input->getOption('default')) {
+        if ((bool) $input->getOption('default')) {
             $this->configRepository->setDefault($config);
             $io->success('Configuration set as default.');
         }
@@ -93,7 +94,7 @@ class OAuth2ConfigureCommand extends Command
         $io->success(sprintf(
             'OAuth2 configuration for account "%s" has been %s.',
             $account->getName() ?: $account->getAppId(),
-            $config->getId() ? 'updated' : 'created'
+            $config->getId() !== null ? 'updated' : 'created'
         ));
 
         // Display configuration details

@@ -8,7 +8,6 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\OAuth2AuthorizationCode;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Service\OAuth2AuthorizationService;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
 use WechatOfficialAccountBundle\Entity\Account;
-use WechatOfficialAccountBundle\Service\OfficialAccountClient;
 
 /**
  * OAuth2授权服务单元测试
@@ -16,7 +15,6 @@ use WechatOfficialAccountBundle\Service\OfficialAccountClient;
 class OAuth2AuthorizationServiceTest extends TestCase
 {
     private EntityManagerInterface|\PHPUnit\Framework\MockObject\MockObject $entityManager;
-    private OfficialAccountClient|\PHPUnit\Framework\MockObject\MockObject $wechatClient;
     private WechatOAuth2Service|\PHPUnit\Framework\MockObject\MockObject $wechatOAuth2Service;
     private OAuth2AuthorizationService $service;
 
@@ -210,12 +208,10 @@ class OAuth2AuthorizationServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->wechatClient = $this->createMock(OfficialAccountClient::class);
         $this->wechatOAuth2Service = $this->createMock(WechatOAuth2Service::class);
 
         $this->service = new OAuth2AuthorizationService(
             $this->entityManager,
-            $this->wechatClient,
             $this->wechatOAuth2Service
         );
     }

@@ -7,7 +7,8 @@ use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Routing\RouteCollection;
 use Tourze\RoutingAutoLoaderBundle\Service\RoutingAutoLoaderInterface;
-use Tourze\WechatOfficialAccountOAuth2Bundle\Controller\WechatOAuth2Controller;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Controller\WechatOAuth2AuthorizeController;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Controller\WechatOAuth2CallbackController;
 
 #[AutoconfigureTag('routing.loader')]
 class AttributeControllerLoader extends Loader implements RoutingAutoLoaderInterface
@@ -28,7 +29,8 @@ class AttributeControllerLoader extends Loader implements RoutingAutoLoaderInter
     public function autoload(): RouteCollection
     {
         $collection = new RouteCollection();
-        $collection->addCollection($this->controllerLoader->load(WechatOAuth2Controller::class));
+        $collection->addCollection($this->controllerLoader->load(WechatOAuth2AuthorizeController::class));
+        $collection->addCollection($this->controllerLoader->load(WechatOAuth2CallbackController::class));
         return $collection;
     }
 

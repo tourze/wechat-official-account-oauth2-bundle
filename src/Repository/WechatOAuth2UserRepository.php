@@ -42,7 +42,7 @@ class WechatOAuth2UserRepository extends ServiceEntityRepository
             'config' => $config,
         ]);
 
-        if (!$user) {
+        if ($user === null) {
             $user = new WechatOAuth2User();
             $user->setConfig($config);
             $user->setOpenid($userData['openid']);

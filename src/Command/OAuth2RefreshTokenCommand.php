@@ -19,6 +19,7 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
 )]
 class OAuth2RefreshTokenCommand extends Command
 {
+    public const NAME = 'wechat:oauth2:refresh-tokens';
     public function __construct(
         private readonly WechatOAuth2Service $oauth2Service
     ) {
@@ -39,12 +40,12 @@ class OAuth2RefreshTokenCommand extends Command
 
         $io->title('Refreshing Expired Wechat OAuth2 Tokens');
 
-        if ($isDryRun) {
+        if ((bool) $isDryRun) {
             $io->note('Running in dry-run mode. No tokens will be refreshed.');
         }
 
         try {
-            if ($isDryRun) {
+            if ((bool) $isDryRun) {
                 $io->warning('Dry-run mode is not fully implemented. Skipping actual refresh.');
                 $refreshed = 0;
             } else {

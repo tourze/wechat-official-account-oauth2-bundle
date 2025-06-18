@@ -25,7 +25,7 @@ class WechatOAuth2ConfigRepository extends ServiceEntityRepository
     {
         $config = $this->findOneBy(['valid' => true, 'isDefault' => true]);
         
-        if (!$config) {
+        if ($config === null) {
             $config = $this->findOneBy(['valid' => true]);
         }
         

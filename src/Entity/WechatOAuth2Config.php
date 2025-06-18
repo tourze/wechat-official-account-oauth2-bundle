@@ -34,29 +34,17 @@ class WechatOAuth2Config implements \Stringable
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-    /**
-     * 授权作用域
-     */
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, options: ['comment' => '授权作用域'])]
     private ?string $scope = null;
 
-    /**
-     * 是否启用
-     */
     #[IndexColumn]
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true, 'comment' => '是否启用'])]
     private bool $valid = true;
 
-    /**
-     * 是否为默认配置
-     */
     #[IndexColumn]
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false, 'comment' => '是否为默认配置'])]
     private bool $isDefault = false;
 
-    /**
-     * 备注
-     */
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '备注信息'])]
     private ?string $remark = null;
 

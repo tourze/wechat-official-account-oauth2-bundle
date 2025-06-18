@@ -41,10 +41,10 @@ class WechatOAuth2State implements \Stringable
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true, 'comment' => '是否有效'])]
     private bool $valid = true;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '使用时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '使用时间'])]
     private ?\DateTimeInterface $usedTime = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '过期时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '过期时间'])]
     private \DateTimeInterface $expiresTime;
 
     public function __construct(string $state, WechatOAuth2Config $config)

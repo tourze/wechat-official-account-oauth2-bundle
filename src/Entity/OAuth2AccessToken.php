@@ -9,22 +9,9 @@ use Tourze\DoctrineSnowflakeBundle\Attribute\SnowflakeColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\DoctrineUserBundle\Traits\BlameableAware;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Action\Editable;
-use Tourze\EasyAdmin\Attribute\Column\BoolColumn;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
-use Tourze\EasyAdmin\Attribute\Filter\Keyword;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AccessTokenRepository;
 use WechatOfficialAccountBundle\Entity\Account;
 
-#[AsPermission(title: 'OAuth2访问令牌')]
-#[Deletable]
-#[Editable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: OAuth2AccessTokenRepository::class)]
 #[ORM\Table(name: 'wechat_oauth2_access_token', options: ['comment' => 'OAuth2访问令牌'])]
 class OAuth2AccessToken implements \Stringable
@@ -32,66 +19,44 @@ class OAuth2AccessToken implements \Stringable
     use TimestampableAware;
     use BlameableAware;
 
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
     #[ORM\Id]
     #[SnowflakeColumn]
     #[ORM\Column(type: Types::BIGINT, options: ['comment' => 'ID'])]
     private ?string $id = null;
 
-    #[FormField]
-    #[Keyword]
-    #[ListColumn]
     #[ORM\Column(type: Types::STRING, length: 100, unique: true, options: ['comment' => '访问令牌'])]
     private ?string $accessToken = null;
 
-    #[FormField]
-    #[ListColumn]
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, options: ['comment' => '刷新令牌'])]
     private ?string $refreshToken = null;
 
-    #[FormField]
-    #[ListColumn]
     #[ORM\Column(type: Types::STRING, length: 100, options: ['comment' => '微信用户OpenID'])]
     private ?string $openid = null;
 
-    #[FormField]
-    #[ListColumn]
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, options: ['comment' => '微信用户UnionID'])]
     private ?string $unionid = null;
 
-    #[FormField]
-    #[ListColumn]
     #[ORM\Column(type: Types::STRING, length: 200, nullable: true, options: ['comment' => '授权范围'])]
     private ?string $scopes = null;
 
-    #[FormField]
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '访问令牌过期时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '访问令牌过期时间'])]
     private ?\DateTimeInterface $accessTokenExpiresAt = null;
 
-    #[FormField]
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '刷新令牌过期时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '刷新令牌过期时间'])]
     private ?\DateTimeInterface $refreshTokenExpiresAt = null;
 
-    #[FormField]
-    #[ListColumn]
     #[ORM\ManyToOne(targetEntity: Account::class)]
     #[ORM\JoinColumn(name: 'wechat_account_id', referencedColumnName: 'id', nullable: false)]
     private ?Account $wechatAccount = null;
 
-    #[BoolColumn]
     #[IndexColumn]
     #[TrackColumn]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '已撤销', 'default' => 0])]
-    #[ListColumn(order: 97)]
-    #[FormField(order: 97)]
     private ?bool $revoked = false;
 
     public function __toString(): string
     {
-        if (!$this->getId()) {
+        if ($this->getId() === null) {
             return '';
         }
 
@@ -175,7 +140,7 @@ class OAuth2AccessToken implements \Stringable
      */
     public function getScopesArray(): array
     {
-        if (!$this->scopes) {
+        if ($this->scopes === null) {
             return [];
         }
 
@@ -208,7 +173,7 @@ class OAuth2AccessToken implements \Stringable
 
     public function isRefreshTokenExpired(): bool
     {
-        return $this->refreshTokenExpiresAt && $this->refreshTokenExpiresAt < new \DateTime();
+        return $this->refreshTokenExpiresAt !== null && $this->refreshTokenExpiresAt < new \DateTime();
     }
 
     public function getWechatAccount(): ?Account
@@ -242,6 +207,6 @@ class OAuth2AccessToken implements \Stringable
 
     public function isAccessTokenExpired(): bool
     {
-        return $this->accessTokenExpiresAt && $this->accessTokenExpiresAt < new \DateTime();
+        return $this->accessTokenExpiresAt !== null && $this->accessTokenExpiresAt < new \DateTime();
     }
 }

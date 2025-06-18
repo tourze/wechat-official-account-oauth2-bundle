@@ -21,6 +21,7 @@ use WechatOfficialAccountBundle\Entity\Account;
 )]
 class OAuth2CreateApplicationCommand extends Command
 {
+    public const NAME = 'oauth2:create-application';
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
     ) {
@@ -46,7 +47,7 @@ class OAuth2CreateApplicationCommand extends Command
 
         // 查找微信账号
         $wechatAccount = $this->entityManager->getRepository(Account::class)->find($wechatAccountId);
-        if (!$wechatAccount) {
+        if ($wechatAccount === null) {
             $io->error(sprintf('微信公众号账号 ID "%s" 不存在', $wechatAccountId));
             return Command::FAILURE;
         }

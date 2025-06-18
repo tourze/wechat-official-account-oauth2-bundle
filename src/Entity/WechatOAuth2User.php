@@ -71,7 +71,7 @@ class WechatOAuth2User implements \Stringable
     private int $expiresIn;
 
     #[IndexColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '访问令牌过期时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '访问令牌过期时间'])]
     private \DateTimeInterface $accessTokenExpiresTime;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, options: ['comment' => '授权作用域'])]
