@@ -165,15 +165,33 @@ class WechatOAuth2ServiceTest extends TestCase
 
     public function testRefreshExpiredTokens(): void
     {
+        $config = $this->createMock(WechatOAuth2Config::class);
+        $account = new Account();
+        $config->expects($this->any())
+            ->method('getAccount')
+            ->willReturn($account);
+
         $user1 = $this->createMock(WechatOAuth2User::class);
         $user1->expects($this->once())
             ->method('getOpenid')
             ->willReturn('openid1');
+        $user1->expects($this->once())
+            ->method('getConfig')
+            ->willReturn($config);
+        $user1->expects($this->once())
+            ->method('getRefreshToken')
+            ->willReturn('refresh_token_1');
 
         $user2 = $this->createMock(WechatOAuth2User::class);
         $user2->expects($this->once())
             ->method('getOpenid')
             ->willReturn('openid2');
+        $user2->expects($this->once())
+            ->method('getConfig')
+            ->willReturn($config);
+        $user2->expects($this->once())
+            ->method('getRefreshToken')
+            ->willReturn('refresh_token_2');
 
         $this->userRepository->expects($this->once())
             ->method('findExpiredTokenUsers')
@@ -184,9 +202,36 @@ class WechatOAuth2ServiceTest extends TestCase
             ->method('findByOpenid')
             ->willReturn($user1, $user2);
 
+        // Mock the wechatClient request to return proper response
+        $this->wechatClient->expects($this->exactly(2))
+            ->method('request')
+            ->willReturn([
+                'access_token' => 'new_access_token',
+                'refresh_token' => 'new_refresh_token',
+                'expires_in' => 7200,
+                'scope' => 'snsapi_base',
+                'openid' => 'test_openid'
+            ]);
+
+        // Expect setters to be called
+        $user1->expects($this->once())->method('setAccessToken')->with('new_access_token')->willReturnSelf();
+        $user1->expects($this->once())->method('setRefreshToken')->with('new_refresh_token')->willReturnSelf();
+        $user1->expects($this->once())->method('setExpiresIn')->with(7200)->willReturnSelf();
+        $user1->expects($this->once())->method('setScope')->with('snsapi_base')->willReturnSelf();
+        $user1->expects($this->once())->method('setOpenid')->with('test_openid')->willReturnSelf();
+
+        $user2->expects($this->once())->method('setAccessToken')->with('new_access_token')->willReturnSelf();
+        $user2->expects($this->once())->method('setRefreshToken')->with('new_refresh_token')->willReturnSelf();
+        $user2->expects($this->once())->method('setExpiresIn')->with(7200)->willReturnSelf();
+        $user2->expects($this->once())->method('setScope')->with('snsapi_base')->willReturnSelf();
+        $user2->expects($this->once())->method('setOpenid')->with('test_openid')->willReturnSelf();
+
+        $this->entityManager->expects($this->exactly(2))->method('persist');
+        $this->entityManager->expects($this->exactly(2))->method('flush');
+
         $refreshed = $this->service->refreshExpiredTokens();
 
-        $this->assertEquals(0, $refreshed); // Since refreshToken returns false in our mock
+        $this->assertEquals(2, $refreshed); // Both users should be successfully refreshed
     }
 
     public function testCleanupExpiredStates(): void

@@ -5,6 +5,9 @@ namespace Tourze\WechatOfficialAccountOAuth2Bundle\Tests\Unit\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\OAuth2AuthorizationCode;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AccessTokenRepository;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AuthorizationCodeRepository;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2ConfigRepository;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Service\OAuth2AuthorizationService;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
 use WechatOfficialAccountBundle\Entity\Account;
@@ -16,6 +19,9 @@ class OAuth2AuthorizationServiceTest extends TestCase
 {
     private EntityManagerInterface|\PHPUnit\Framework\MockObject\MockObject $entityManager;
     private WechatOAuth2Service|\PHPUnit\Framework\MockObject\MockObject $wechatOAuth2Service;
+    private OAuth2AccessTokenRepository|\PHPUnit\Framework\MockObject\MockObject $accessTokenRepository;
+    private OAuth2AuthorizationCodeRepository|\PHPUnit\Framework\MockObject\MockObject $authorizationCodeRepository;
+    private WechatOAuth2ConfigRepository|\PHPUnit\Framework\MockObject\MockObject $oauth2ConfigRepository;
     private OAuth2AuthorizationService $service;
 
     public function testBuildWechatAuthUrl(): void
@@ -84,8 +90,7 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $authCode->setExpiresAt(new \DateTime('+10 minutes'));
         $authCode->setUsed(false);
 
-        $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
-        $repository->expects($this->once())
+        $this->authorizationCodeRepository->expects($this->once())
             ->method('findOneBy')
             ->with([
                 'code' => 'test_code',
@@ -93,10 +98,6 @@ class OAuth2AuthorizationServiceTest extends TestCase
                 'used' => false
             ])
             ->willReturn($authCode);
-
-        $this->entityManager->expects($this->once())
-            ->method('getRepository')
-            ->willReturn($repository);
 
         $this->entityManager->expects($this->exactly(2))
             ->method('persist');
@@ -127,14 +128,9 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $account = new Account();
         $account->setAppId('test_app_id');
 
-        $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
-        $repository->expects($this->once())
+        $this->authorizationCodeRepository->expects($this->once())
             ->method('findOneBy')
             ->willReturn(null);
-
-        $this->entityManager->expects($this->once())
-            ->method('getRepository')
-            ->willReturn($repository);
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('无效的授权码');
@@ -156,14 +152,9 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $authCode->setExpiresAt(new \DateTime('-10 minutes')); // 过期的授权码
         $authCode->setUsed(false);
 
-        $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
-        $repository->expects($this->once())
+        $this->authorizationCodeRepository->expects($this->once())
             ->method('findOneBy')
             ->willReturn($authCode);
-
-        $this->entityManager->expects($this->once())
-            ->method('getRepository')
-            ->willReturn($repository);
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('授权码已过期');
@@ -186,14 +177,9 @@ class OAuth2AuthorizationServiceTest extends TestCase
         $authCode->setExpiresAt(new \DateTime('+10 minutes'));
         $authCode->setUsed(false);
 
-        $repository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
-        $repository->expects($this->once())
+        $this->authorizationCodeRepository->expects($this->once())
             ->method('findOneBy')
             ->willReturn($authCode);
-
-        $this->entityManager->expects($this->once())
-            ->method('getRepository')
-            ->willReturn($repository);
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('重定向URI不匹配');
@@ -209,10 +195,16 @@ class OAuth2AuthorizationServiceTest extends TestCase
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->wechatOAuth2Service = $this->createMock(WechatOAuth2Service::class);
+        $this->accessTokenRepository = $this->createMock(OAuth2AccessTokenRepository::class);
+        $this->authorizationCodeRepository = $this->createMock(OAuth2AuthorizationCodeRepository::class);
+        $this->oauth2ConfigRepository = $this->createMock(WechatOAuth2ConfigRepository::class);
 
         $this->service = new OAuth2AuthorizationService(
             $this->entityManager,
-            $this->wechatOAuth2Service
+            $this->wechatOAuth2Service,
+            $this->accessTokenRepository,
+            $this->authorizationCodeRepository,
+            $this->oauth2ConfigRepository
         );
     }
 }

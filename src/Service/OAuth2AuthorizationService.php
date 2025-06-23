@@ -6,6 +6,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\OAuth2AccessToken;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\OAuth2AuthorizationCode;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AccessTokenRepository;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AuthorizationCodeRepository;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2ConfigRepository;
 use WechatOfficialAccountBundle\Entity\Account;
 
 /**
@@ -18,6 +21,9 @@ class OAuth2AuthorizationService
         private readonly EntityManagerInterface $entityManager,
         // private readonly OfficialAccountClient $wechatClient,
         private readonly WechatOAuth2Service $wechatOAuth2Service,
+        private readonly OAuth2AccessTokenRepository $accessTokenRepository,
+        private readonly OAuth2AuthorizationCodeRepository $authorizationCodeRepository,
+        private readonly WechatOAuth2ConfigRepository $oauth2ConfigRepository,
     ) {
     }
 
@@ -45,8 +51,7 @@ class OAuth2AuthorizationService
     public function getUserInfoByCode(Account $account, string $code): array
     {
         // 获取默认配置
-        $config = $this->entityManager->getRepository(\Tourze\WechatOfficialAccountOAuth2Bundle\Entity\WechatOAuth2Config::class)
-            ->findOneBy(['account' => $account, 'valid' => true]);
+        $config = $this->oauth2ConfigRepository->findOneBy(['account' => $account, 'valid' => true]);
             
         if ($config === null) {
             throw new \RuntimeException('No valid OAuth2 config found for account');
@@ -124,7 +129,7 @@ class OAuth2AuthorizationService
         Account $account
     ): OAuth2AccessToken {
         // 查找授权码
-        $authorizationCode = $this->entityManager->getRepository(OAuth2AuthorizationCode::class)
+        $authorizationCode = $this->authorizationCodeRepository
             ->findOneBy(['code' => $code, 'wechatAccount' => $account, 'used' => false]);
 
         if ($authorizationCode === null) {
@@ -176,7 +181,7 @@ class OAuth2AuthorizationService
     public function refreshAccessToken(string $refreshToken, Account $account): OAuth2AccessToken
     {
         // 查找刷新令牌
-        $oldToken = $this->entityManager->getRepository(OAuth2AccessToken::class)
+        $oldToken = $this->accessTokenRepository
             ->findOneBy(['refreshToken' => $refreshToken, 'wechatAccount' => $account, 'revoked' => false]);
 
         if ($oldToken === null) {
@@ -215,16 +220,16 @@ class OAuth2AuthorizationService
     {
         if ($tokenTypeHint === 'refresh_token') {
             // 按刷新令牌查找
-            $tokenEntity = $this->entityManager->getRepository(OAuth2AccessToken::class)
+            $tokenEntity = $this->accessTokenRepository
                 ->findOneBy(['refreshToken' => $token, 'wechatAccount' => $account]);
         } else {
             // 按访问令牌查找
-            $tokenEntity = $this->entityManager->getRepository(OAuth2AccessToken::class)
+            $tokenEntity = $this->accessTokenRepository
                 ->findOneBy(['accessToken' => $token, 'wechatAccount' => $account]);
 
             // 如果没找到，尝试按刷新令牌查找
             if ($tokenEntity === null) {
-                $tokenEntity = $this->entityManager->getRepository(OAuth2AccessToken::class)
+                $tokenEntity = $this->accessTokenRepository
                     ->findOneBy(['refreshToken' => $token, 'wechatAccount' => $account]);
             }
         }

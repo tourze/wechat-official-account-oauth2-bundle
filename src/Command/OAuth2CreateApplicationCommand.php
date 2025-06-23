@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use WechatOfficialAccountBundle\Entity\Account;
+use WechatOfficialAccountBundle\Repository\AccountRepository;
 
 /**
  * OAuth2应用创建命令
@@ -24,6 +24,7 @@ class OAuth2CreateApplicationCommand extends Command
     public const NAME = 'oauth2:create-application';
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly AccountRepository $accountRepository,
     ) {
         parent::__construct();
     }
@@ -46,7 +47,7 @@ class OAuth2CreateApplicationCommand extends Command
         $scope = $input->getOption('scope');
 
         // 查找微信账号
-        $wechatAccount = $this->entityManager->getRepository(Account::class)->find($wechatAccountId);
+        $wechatAccount = $this->accountRepository->find($wechatAccountId);
         if ($wechatAccount === null) {
             $io->error(sprintf('微信公众号账号 ID "%s" 不存在', $wechatAccountId));
             return Command::FAILURE;
