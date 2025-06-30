@@ -93,7 +93,7 @@ class OAuth2ConfigureCommand extends Command
 
         $io->success(sprintf(
             'OAuth2 configuration for account "%s" has been %s.',
-            $account->getName() ?: $account->getAppId(),
+            $account->getName() !== null ? $account->getName() : $account->getAppId(),
             $config->getId() !== null ? 'updated' : 'created'
         ));
 
@@ -101,12 +101,12 @@ class OAuth2ConfigureCommand extends Command
         $io->table(
             ['Property', 'Value'],
             [
-                ['Account', $account->getName() ?: $account->getAppId()],
+                ['Account', $account->getName() !== null ? $account->getName() : $account->getAppId()],
                 ['App ID', $account->getAppId()],
                 ['Scope', $config->getScope()],
                 ['Enabled', $config->isValid() ? 'Yes' : 'No'],
                 ['Default', $config->isDefault() ? 'Yes' : 'No'],
-                ['Remark', $config->getRemark() ?: '-'],
+                ['Remark', $config->getRemark() !== null ? $config->getRemark() : '-'],
             ]
         );
 

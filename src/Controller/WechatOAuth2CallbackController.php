@@ -24,7 +24,7 @@ class WechatOAuth2CallbackController extends AbstractController
     /**
      * 处理回调
      */
-    #[Route('/wechat/oauth2/callback', name: 'wechat_oauth2_callback', methods: ['GET'])]
+    #[Route(path: '/wechat/oauth2/callback', name: 'wechat_oauth2_callback', methods: ['GET'])]
     public function __invoke(Request $request): Response
     {
         $code = $request->query->get('code');
@@ -32,10 +32,12 @@ class WechatOAuth2CallbackController extends AbstractController
         $error = $request->query->get('error');
         
         if ($error) {
-            $this->logger?->warning('OAuth2 authorization denied', [
-                'error' => $error,
-                'error_description' => $request->query->get('error_description'),
-            ]);
+            if ($this->logger !== null) {
+                $this->logger->warning('OAuth2 authorization denied', [
+                    'error' => $error,
+                    'error_description' => $request->query->get('error_description'),
+                ]);
+            }
             
             return $this->render('@WechatOfficialAccountOAuth2/error.html.twig', [
                 'error' => $error,
@@ -51,20 +53,24 @@ class WechatOAuth2CallbackController extends AbstractController
             $user = $this->oauth2Service->handleCallback($code, $state);
             
             // 这里可以触发登录事件或执行其他业务逻辑
-            $this->logger?->info('Wechat OAuth2 login successful', [
-                'openid' => $user->getOpenid(),
-                'unionid' => $user->getUnionid(),
-            ]);
+            if ($this->logger !== null) {
+                $this->logger->info('Wechat OAuth2 login successful', [
+                    'openid' => $user->getOpenid(),
+                    'unionid' => $user->getUnionid(),
+                ]);
+            }
             
             // 默认重定向到首页，实际项目中可能需要根据业务逻辑重定向
             return $this->redirectToRoute('app_home', [
                 'openid' => $user->getOpenid(),
             ]);
         } catch (WechatOAuth2Exception $e) {
-            $this->logger?->error('OAuth2 callback failed', [
-                'error' => $e->getMessage(),
-                'context' => $e->getContext(),
-            ]);
+            if ($this->logger !== null) {
+                $this->logger->error('OAuth2 callback failed', [
+                    'error' => $e->getMessage(),
+                    'context' => $e->getContext(),
+                ]);
+            }
             
             return $this->render('@WechatOfficialAccountOAuth2/error.html.twig', [
                 'error' => 'callback_failed',

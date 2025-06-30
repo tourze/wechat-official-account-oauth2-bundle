@@ -7,7 +7,7 @@ use WechatOfficialAccountBundle\Entity\Account;
 
 /**
  * 通过OAuth2授权码获取访问令牌请求
- * 
+ *
  * @see https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html#1
  */
 class GetAccessTokenRequest extends ApiRequest

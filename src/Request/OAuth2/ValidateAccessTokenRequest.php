@@ -6,7 +6,7 @@ use HttpClientBundle\Request\ApiRequest;
 
 /**
  * 验证OAuth2访问令牌请求
- * 
+ *
  * @see https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html#4
  */
 class ValidateAccessTokenRequest extends ApiRequest

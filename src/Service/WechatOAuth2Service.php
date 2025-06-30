@@ -66,7 +66,7 @@ class WechatOAuth2Service
             'appid' => $config->getAppId(),
             'redirect_uri' => $redirectUri,
             'response_type' => 'code',
-            'scope' => $scope ?: $config->getScope() ?: 'snsapi_base',
+            'scope' => $scope !== null ? $scope : ($config->getScope() !== null ? $config->getScope() : 'snsapi_base'),
             'state' => $state,
         ];
 

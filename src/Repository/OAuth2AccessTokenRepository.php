@@ -75,7 +75,7 @@ class OAuth2AccessTokenRepository extends ServiceEntityRepository
      */
     public function findExpiredTokens(?\DateTime $beforeDate = null): array
     {
-        $beforeDate = $beforeDate ?: new \DateTime();
+        $beforeDate = $beforeDate ?? new \DateTime();
         
         return $this->createQueryBuilder('at')
             ->where('at.accessTokenExpiresAt < :beforeDate')
@@ -118,7 +118,7 @@ class OAuth2AccessTokenRepository extends ServiceEntityRepository
 
     public function deleteExpiredTokens(?\DateTime $beforeDate = null): int
     {
-        $beforeDate = $beforeDate ?: new \DateTime();
+        $beforeDate = $beforeDate ?? new \DateTime();
         
         return $this->createQueryBuilder('at')
             ->delete()

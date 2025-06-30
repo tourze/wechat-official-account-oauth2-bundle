@@ -6,7 +6,7 @@ use HttpClientBundle\Request\ApiRequest;
 
 /**
  * 使用OAuth2访问令牌获取用户信息请求
- * 
+ *
  * @see https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html#3
  */
 class GetOAuth2UserInfoRequest extends ApiRequest

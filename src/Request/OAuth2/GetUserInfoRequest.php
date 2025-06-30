@@ -6,7 +6,7 @@ use WechatOfficialAccountBundle\Request\WithAccountRequest;
 
 /**
  * 获取OAuth2用户信息请求
- * 
+ *
  * @see https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html#3
  */
 class GetUserInfoRequest extends WithAccountRequest

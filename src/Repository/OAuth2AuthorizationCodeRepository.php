@@ -39,7 +39,7 @@ class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
      */
     public function findExpiredCodes(?\DateTime $beforeDate = null): array
     {
-        $beforeDate = $beforeDate ?: new \DateTime();
+        $beforeDate = $beforeDate ?? new \DateTime();
         
         return $this->createQueryBuilder('ac')
             ->where('ac.expiresAt < :beforeDate')
@@ -58,7 +58,7 @@ class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
 
     public function deleteExpiredCodes(?\DateTime $beforeDate = null): int
     {
-        $beforeDate = $beforeDate ?: new \DateTime();
+        $beforeDate = $beforeDate ?? new \DateTime();
         
         return $this->createQueryBuilder('ac')
             ->delete()

@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Exception\WechatOAuth2ConfigurationException;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AccessTokenRepository;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AuthorizationCodeRepository;
 
@@ -118,7 +119,7 @@ class OAuth2CleanupCommand extends Command
             try {
                 return new \DateTime($dateString);
             } catch (\Exception $e) {
-                throw new \InvalidArgumentException(
+                throw new WechatOAuth2ConfigurationException(
                     sprintf('无效的时间格式: %s. 请使用 Y-m-d H:i:s 格式或相对时间（如 "-1 week"）', $dateString)
                 );
             }

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2StateRepository;
 
@@ -18,13 +19,9 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2StateReposit
 #[ORM\Index(columns: ['valid'], name: 'wechat_oauth2_state_idx_valid')]
 class WechatOAuth2State implements \Stringable
 {
+    use SnowflakeKeyAware;
     use TimestampableAware;
 
-    #[ORM\Id]
-    #[ORM\Column(type: Types::BIGINT, options: ['comment' => '主键ID'])]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: SnowflakeIdGenerator::class)]
-    private ?string $id = null;
 
     #[IndexColumn]
     #[ORM\Column(type: Types::STRING, length: 64, unique: true, options: ['comment' => '状态值'])]
@@ -59,10 +56,6 @@ class WechatOAuth2State implements \Stringable
         return sprintf('WechatOAuth2State[%s](%s)', $this->id, $this->state);
     }
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getState(): string
     {

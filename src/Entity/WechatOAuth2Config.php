@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2ConfigRepository;
 use WechatOfficialAccountBundle\Entity\Account;
@@ -19,13 +20,9 @@ use WechatOfficialAccountBundle\Entity\Account;
 #[ORM\UniqueConstraint(columns: ['account_id'])]
 class WechatOAuth2Config implements \Stringable
 {
+    use SnowflakeKeyAware;
     use TimestampableAware;
 
-    #[ORM\Id]
-    #[ORM\Column(type: Types::BIGINT, options: ['comment' => '主键ID'])]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: SnowflakeIdGenerator::class)]
-    private ?string $id = null;
 
     /**
      * 关联的微信公众号账户
@@ -58,10 +55,6 @@ class WechatOAuth2Config implements \Stringable
         return $this->account->getAppId() ?? '';
     }
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getAccount(): Account
     {

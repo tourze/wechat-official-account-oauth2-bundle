@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2UserRepository;
 
@@ -19,13 +20,9 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2UserReposito
 #[ORM\UniqueConstraint(columns: ['openid', 'config_id'])]
 class WechatOAuth2User implements \Stringable
 {
+    use SnowflakeKeyAware;
     use TimestampableAware;
 
-    #[ORM\Id]
-    #[ORM\Column(type: Types::BIGINT, options: ['comment' => '主键ID'])]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: SnowflakeIdGenerator::class)]
-    private ?string $id = null;
 
     #[ORM\ManyToOne(targetEntity: WechatOAuth2Config::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -86,10 +83,6 @@ class WechatOAuth2User implements \Stringable
         return sprintf('WechatOAuth2User[%s](%s)', $this->id, $this->nickname ?? $this->openid);
     }
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getConfig(): WechatOAuth2Config
     {

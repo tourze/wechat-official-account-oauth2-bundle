@@ -24,7 +24,7 @@ class WechatOAuth2AuthorizeController extends AbstractController
     /**
      * 发起授权
      */
-    #[Route('/wechat/oauth2/authorize', name: 'wechat_oauth2_authorize', methods: ['GET'])]
+    #[Route(path: '/wechat/oauth2/authorize', name: 'wechat_oauth2_authorize', methods: ['GET'])]
     public function __invoke(Request $request): RedirectResponse
     {
         try {
@@ -35,10 +35,12 @@ class WechatOAuth2AuthorizeController extends AbstractController
             
             return $this->redirect($authUrl);
         } catch (WechatOAuth2Exception $e) {
-            $this->logger?->error('Failed to generate authorization URL', [
-                'error' => $e->getMessage(),
-                'context' => $e->getContext(),
-            ]);
+            if ($this->logger !== null) {
+                $this->logger->error('Failed to generate authorization URL', [
+                    'error' => $e->getMessage(),
+                    'context' => $e->getContext(),
+                ]);
+            }
             
             throw $this->createNotFoundException('OAuth2 configuration not found');
         }

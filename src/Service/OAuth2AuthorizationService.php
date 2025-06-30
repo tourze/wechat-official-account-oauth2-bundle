@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\OAuth2AccessToken;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\OAuth2AuthorizationCode;
+use Tourze\WechatOfficialAccountOAuth2Bundle\Exception\OAuth2AuthorizationException;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AccessTokenRepository;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AuthorizationCodeRepository;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2ConfigRepository;
@@ -54,7 +55,7 @@ class OAuth2AuthorizationService
         $config = $this->oauth2ConfigRepository->findOneBy(['account' => $account, 'valid' => true]);
             
         if ($config === null) {
-            throw new \RuntimeException('No valid OAuth2 config found for account');
+            throw new OAuth2AuthorizationException('No valid OAuth2 config found for account', 0, null, ['error_code' => 'config_not_found']);
         }
         
         // 使用 WechatOAuth2Service 的 exchangeCodeForToken 方法
@@ -133,15 +134,15 @@ class OAuth2AuthorizationService
             ->findOneBy(['code' => $code, 'wechatAccount' => $account, 'used' => false]);
 
         if ($authorizationCode === null) {
-            throw new \InvalidArgumentException('无效的授权码');
+            throw new OAuth2AuthorizationException('无效的授权码', 0, null, ['error_code' => OAuth2AuthorizationException::INVALID_AUTHORIZATION_CODE]);
         }
 
         if ($authorizationCode->isExpired()) {
-            throw new \InvalidArgumentException('授权码已过期');
+            throw new OAuth2AuthorizationException('授权码已过期', 0, null, ['error_code' => OAuth2AuthorizationException::EXPIRED_AUTHORIZATION_CODE]);
         }
 
         if ($authorizationCode->getRedirectUri() !== $redirectUri) {
-            throw new \InvalidArgumentException('重定向URI不匹配');
+            throw new OAuth2AuthorizationException('重定向URI不匹配', 0, null, ['error_code' => OAuth2AuthorizationException::REDIRECT_URI_MISMATCH]);
         }
 
         // 标记授权码为已使用
@@ -185,11 +186,11 @@ class OAuth2AuthorizationService
             ->findOneBy(['refreshToken' => $refreshToken, 'wechatAccount' => $account, 'revoked' => false]);
 
         if ($oldToken === null) {
-            throw new \InvalidArgumentException('无效的刷新令牌');
+            throw new OAuth2AuthorizationException('无效的刷新令牌', 0, null, ['error_code' => OAuth2AuthorizationException::INVALID_REFRESH_TOKEN]);
         }
 
         if ($oldToken->isRefreshTokenExpired()) {
-            throw new \InvalidArgumentException('刷新令牌已过期');
+            throw new OAuth2AuthorizationException('刷新令牌已过期', 0, null, ['error_code' => OAuth2AuthorizationException::EXPIRED_REFRESH_TOKEN]);
         }
 
         // 撤销旧令牌
