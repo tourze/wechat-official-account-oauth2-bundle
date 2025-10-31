@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Request\OAuth2;
 
 use HttpClientBundle\Request\ApiRequest;
@@ -13,7 +15,9 @@ use WechatOfficialAccountBundle\Entity\Account;
 class RefreshAccessTokenRequest extends ApiRequest
 {
     private Account $account;
+
     private string $refreshToken;
+
     private string $grantType = 'refresh_token';
 
     public function getRequestPath(): string
@@ -21,6 +25,9 @@ class RefreshAccessTokenRequest extends ApiRequest
         return 'https://api.weixin.qq.com/sns/oauth2/refresh_token';
     }
 
+    /**
+     * @return ?array<string, mixed>
+     */
     public function getRequestOptions(): ?array
     {
         return [

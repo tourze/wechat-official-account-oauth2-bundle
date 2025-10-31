@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2ConfigRepository;
@@ -23,7 +25,6 @@ class WechatOAuth2Config implements \Stringable
     use SnowflakeKeyAware;
     use TimestampableAware;
 
-
     /**
      * 关联的微信公众号账户
      */
@@ -32,17 +33,21 @@ class WechatOAuth2Config implements \Stringable
     private Account $account;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, options: ['comment' => '授权作用域'])]
+    #[Assert\Length(max: 100)]
     private ?string $scope = null;
 
     #[IndexColumn]
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true, 'comment' => '是否启用'])]
+    #[Assert\Type(type: 'bool')]
     private bool $valid = true;
 
     #[IndexColumn]
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false, 'comment' => '是否为默认配置'])]
+    #[Assert\Type(type: 'bool')]
     private bool $isDefault = false;
 
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '备注信息'])]
+    #[Assert\Length(max: 65535)]
     private ?string $remark = null;
 
     public function __toString(): string
@@ -55,16 +60,14 @@ class WechatOAuth2Config implements \Stringable
         return $this->account->getAppId() ?? '';
     }
 
-
     public function getAccount(): Account
     {
         return $this->account;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccount(Account $account): void
     {
         $this->account = $account;
-        return $this;
     }
 
     public function getAppSecret(): string
@@ -77,10 +80,9 @@ class WechatOAuth2Config implements \Stringable
         return $this->scope;
     }
 
-    public function setScope(?string $scope): static
+    public function setScope(?string $scope): void
     {
         $this->scope = $scope;
-        return $this;
     }
 
     public function isValid(): bool
@@ -88,10 +90,9 @@ class WechatOAuth2Config implements \Stringable
         return $this->valid;
     }
 
-    public function setValid(bool $valid): static
+    public function setValid(bool $valid): void
     {
         $this->valid = $valid;
-        return $this;
     }
 
     public function isDefault(): bool
@@ -99,10 +100,9 @@ class WechatOAuth2Config implements \Stringable
         return $this->isDefault;
     }
 
-    public function setIsDefault(bool $isDefault): static
+    public function setIsDefault(bool $isDefault): void
     {
         $this->isDefault = $isDefault;
-        return $this;
     }
 
     public function getRemark(): ?string
@@ -110,9 +110,8 @@ class WechatOAuth2Config implements \Stringable
         return $this->remark;
     }
 
-    public function setRemark(?string $remark): static
+    public function setRemark(?string $remark): void
     {
         $this->remark = $remark;
-        return $this;
     }
 }

@@ -1,19 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\WechatOAuth2Config;
 
 /**
  * @extends ServiceEntityRepository<WechatOAuth2Config>
- *
- * @method WechatOAuth2Config|null find($id, $lockMode = null, $lockVersion = null)
- * @method WechatOAuth2Config|null findOneBy(array $criteria, array $orderBy = null)
- * @method WechatOAuth2Config[] findAll()
- * @method WechatOAuth2Config[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+#[AsRepository(entityClass: WechatOAuth2Config::class)]
 class WechatOAuth2ConfigRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -24,11 +23,11 @@ class WechatOAuth2ConfigRepository extends ServiceEntityRepository
     public function findValidConfig(): ?WechatOAuth2Config
     {
         $config = $this->findOneBy(['valid' => true, 'isDefault' => true]);
-        
-        if ($config === null) {
+
+        if (null === $config) {
             $config = $this->findOneBy(['valid' => true]);
         }
-        
+
         return $config;
     }
 
@@ -36,20 +35,37 @@ class WechatOAuth2ConfigRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('c');
         $qb->update()
-           ->set('c.isDefault', ':false')
-           ->where('c.id != :id')
-           ->setParameter('false', false)
-           ->setParameter('id', $config->getId())
-           ->getQuery()
-           ->execute();
-        
+            ->set('c.isDefault', ':false')
+            ->where('c.id != :id')
+            ->setParameter('false', false)
+            ->setParameter('id', $config->getId())
+            ->getQuery()
+            ->execute()
+        ;
+
         $config->setIsDefault(true);
-        $this->getEntityManager()->persist($config);
-        $this->getEntityManager()->flush();
     }
 
     public function clearCache(): void
     {
         $this->getEntityManager()->clear();
+    }
+
+    public function save(WechatOAuth2Config $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(WechatOAuth2Config $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

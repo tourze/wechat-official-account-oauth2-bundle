@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -13,15 +15,15 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
 /**
  * 刷新过期的OAuth2令牌
  */
-#[AsCommand(
-    name: self::NAME,
-    description: 'Refresh expired Wechat OAuth2 tokens'
-)]
+#[AsCommand(name: self::NAME, description: 'Refresh expired Wechat OAuth2 tokens', help: <<<'TXT'
+    This command refreshes expired Wechat OAuth2 access tokens using their refresh tokens.
+    TXT)]
 class OAuth2RefreshTokenCommand extends Command
 {
     public const NAME = 'wechat:oauth2:refresh-tokens';
+
     public function __construct(
-        private readonly WechatOAuth2Service $oauth2Service
+        private readonly WechatOAuth2Service $oauth2Service,
     ) {
         parent::__construct();
     }
@@ -30,7 +32,7 @@ class OAuth2RefreshTokenCommand extends Command
     {
         $this
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only show what would be refreshed')
-            ->setHelp('This command refreshes expired Wechat OAuth2 access tokens using their refresh tokens.');
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

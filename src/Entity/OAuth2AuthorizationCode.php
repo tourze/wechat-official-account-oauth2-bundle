@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
-use Tourze\DoctrineSnowflakeBundle\Attribute\SnowflakeColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\DoctrineUserBundle\Traits\BlameableAware;
@@ -20,59 +22,68 @@ class OAuth2AuthorizationCode implements \Stringable
     use TimestampableAware;
 
     #[ORM\Id]
-    #[SnowflakeColumn]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     #[ORM\Column(type: Types::BIGINT, options: ['comment' => 'ID'])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, unique: true, options: ['comment' => '授权码'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 100)]
     private ?string $code = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, options: ['comment' => '微信用户OpenID'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 100)]
     private ?string $openid = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, options: ['comment' => '微信用户UnionID'])]
+    #[Assert\Length(max: 100)]
     private ?string $unionid = null;
 
     #[ORM\Column(type: Types::STRING, length: 500, options: ['comment' => '重定向URI'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 500)]
     private ?string $redirectUri = null;
 
     #[ORM\Column(type: Types::STRING, length: 200, nullable: true, options: ['comment' => '授权范围'])]
+    #[Assert\Length(max: 200)]
     private ?string $scopes = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, options: ['comment' => '状态参数'])]
+    #[Assert\Length(max: 100)]
     private ?string $state = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '过期时间'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $expiresAt = null;
 
-    #[ORM\ManyToOne(targetEntity: Account::class)]
+    #[ORM\ManyToOne(targetEntity: Account::class, cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'wechat_account_id', referencedColumnName: 'id', nullable: false)]
     private ?Account $wechatAccount = null;
 
     #[IndexColumn]
     #[TrackColumn]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '已使用', 'default' => 0])]
+    #[Assert\Type(type: 'bool')]
     private ?bool $used = false;
 
     public function __toString(): string
     {
-        if ($this->getId() === null) {
+        if (null === $this->getId()) {
             return '';
         }
 
-        return "{$this->getCode()}({$this->getOpenid()})";
+        return "{$this->getCode()}({$this->getOpenId()})";
     }
 
-    public function getId(): ?string
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(?string $id): static
+    public function setId(?int $id): void
     {
         $this->id = $id;
-
-        return $this;
     }
 
     public function getCode(): ?string
@@ -80,35 +91,29 @@ class OAuth2AuthorizationCode implements \Stringable
         return $this->code;
     }
 
-    public function setCode(string $code): static
+    public function setCode(string $code): void
     {
         $this->code = $code;
-
-        return $this;
     }
 
-    public function getOpenid(): ?string
+    public function getOpenId(): ?string
     {
         return $this->openid;
     }
 
-    public function setOpenid(string $openid): static
+    public function setOpenId(string $openid): void
     {
         $this->openid = $openid;
-
-        return $this;
     }
 
-    public function getUnionid(): ?string
+    public function getUnionId(): ?string
     {
         return $this->unionid;
     }
 
-    public function setUnionid(?string $unionid): static
+    public function setUnionId(?string $unionid): void
     {
         $this->unionid = $unionid;
-
-        return $this;
     }
 
     public function getRedirectUri(): ?string
@@ -116,11 +121,9 @@ class OAuth2AuthorizationCode implements \Stringable
         return $this->redirectUri;
     }
 
-    public function setRedirectUri(string $redirectUri): static
+    public function setRedirectUri(string $redirectUri): void
     {
         $this->redirectUri = $redirectUri;
-
-        return $this;
     }
 
     public function getScopes(): ?string
@@ -128,11 +131,9 @@ class OAuth2AuthorizationCode implements \Stringable
         return $this->scopes;
     }
 
-    public function setScopes(?string $scopes): static
+    public function setScopes(?string $scopes): void
     {
         $this->scopes = $scopes;
-
-        return $this;
     }
 
     /**
@@ -140,11 +141,11 @@ class OAuth2AuthorizationCode implements \Stringable
      */
     public function getScopesArray(): array
     {
-        if ($this->scopes === null) {
+        if (null === $this->scopes) {
             return [];
         }
 
-        return array_filter(array_map('trim', explode(' ', $this->scopes)));
+        return array_filter(array_map('trim', explode(' ', $this->scopes)), static fn ($value): bool => '' !== $value);
     }
 
     public function getState(): ?string
@@ -152,11 +153,9 @@ class OAuth2AuthorizationCode implements \Stringable
         return $this->state;
     }
 
-    public function setState(?string $state): static
+    public function setState(?string $state): void
     {
         $this->state = $state;
-
-        return $this;
     }
 
     public function getExpiresAt(): ?\DateTimeInterface
@@ -164,16 +163,14 @@ class OAuth2AuthorizationCode implements \Stringable
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(\DateTimeInterface $expiresAt): static
+    public function setExpiresAt(\DateTimeInterface $expiresAt): void
     {
         $this->expiresAt = $expiresAt;
-
-        return $this;
     }
 
     public function isExpired(): bool
     {
-        return $this->expiresAt !== null && $this->expiresAt < new \DateTime();
+        return null !== $this->expiresAt && $this->expiresAt < new \DateTimeImmutable();
     }
 
     public function getWechatAccount(): ?Account
@@ -181,11 +178,9 @@ class OAuth2AuthorizationCode implements \Stringable
         return $this->wechatAccount;
     }
 
-    public function setWechatAccount(?Account $wechatAccount): static
+    public function setWechatAccount(?Account $wechatAccount): void
     {
         $this->wechatAccount = $wechatAccount;
-
-        return $this;
     }
 
     public function isUsed(): ?bool
@@ -193,10 +188,8 @@ class OAuth2AuthorizationCode implements \Stringable
         return $this->used;
     }
 
-    public function setUsed(?bool $used): static
+    public function setUsed(?bool $used): void
     {
         $this->used = $used;
-
-        return $this;
     }
 }

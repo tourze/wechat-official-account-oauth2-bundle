@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Service;
 
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
@@ -15,27 +17,30 @@ class AttributeControllerLoader extends Loader implements RoutingAutoLoaderInter
 {
     private AttributeRouteControllerLoader $controllerLoader;
 
+    private RouteCollection $collection;
+
     public function __construct()
     {
         parent::__construct();
         $this->controllerLoader = new AttributeRouteControllerLoader();
+
+        $this->collection = new RouteCollection();
+        $this->collection->addCollection($this->controllerLoader->load(WechatOAuth2AuthorizeController::class));
+        $this->collection->addCollection($this->controllerLoader->load(WechatOAuth2CallbackController::class));
     }
 
     public function load(mixed $resource, ?string $type = null): RouteCollection
     {
-        return $this->autoload();
-    }
-
-    public function autoload(): RouteCollection
-    {
-        $collection = new RouteCollection();
-        $collection->addCollection($this->controllerLoader->load(WechatOAuth2AuthorizeController::class));
-        $collection->addCollection($this->controllerLoader->load(WechatOAuth2CallbackController::class));
-        return $collection;
+        return $this->collection;
     }
 
     public function supports(mixed $resource, ?string $type = null): bool
     {
         return false;
+    }
+
+    public function autoload(): RouteCollection
+    {
+        return $this->collection;
     }
 }

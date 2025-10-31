@@ -1,0 +1,5 @@
+# WeChat OAuth2 Bundle Routes
+wechat_oauth2:
+    resource: ../../Controller/
+    type: attribute
+    prefix: /wechat/oauth2

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2StateRepository;
@@ -16,13 +18,31 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\WechatOAuth2StateReposit
  */
 #[ORM\Entity(repositoryClass: WechatOAuth2StateRepository::class)]
 #[ORM\Table(name: 'wechat_oauth2_state', options: ['comment' => '微信OAuth2授权状态'])]
-#[ORM\Index(columns: ['valid'], name: 'wechat_oauth2_state_idx_valid')]
 class WechatOAuth2State implements \Stringable
 {
     use SnowflakeKeyAware;
     use TimestampableAware;
 
+    #[Assert\Length(max: 128)]
+    #[ORM\Column(type: Types::STRING, length: 128, nullable: true, options: ['comment' => '会话ID'])]
+    private ?string $sessionId = null;
 
+    #[Assert\NotNull]
+    #[IndexColumn]
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true, 'comment' => '是否有效'])]
+    private bool $valid = true;
+
+    #[Assert\DateTime]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '使用时间'])]
+    private ?\DateTimeInterface $usedTime = null;
+
+    #[Assert\NotNull]
+    #[Assert\DateTime]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '过期时间'])]
+    private \DateTimeInterface $expiresTime;
+
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 64)]
     #[IndexColumn]
     #[ORM\Column(type: Types::STRING, length: 64, unique: true, options: ['comment' => '状态值'])]
     private string $state;
@@ -31,24 +51,9 @@ class WechatOAuth2State implements \Stringable
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private WechatOAuth2Config $config;
 
-    #[ORM\Column(type: Types::STRING, length: 128, nullable: true, options: ['comment' => '会话ID'])]
-    private ?string $sessionId = null;
-
-    #[IndexColumn]
-    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true, 'comment' => '是否有效'])]
-    private bool $valid = true;
-
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '使用时间'])]
-    private ?\DateTimeInterface $usedTime = null;
-
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '过期时间'])]
-    private \DateTimeInterface $expiresTime;
-
-    public function __construct(string $state, WechatOAuth2Config $config)
+    public function __construct()
     {
-        $this->state = $state;
-        $this->config = $config;
-        $this->expiresTime = new \DateTime('+5 minutes');
+        $this->expiresTime = new \DateTimeImmutable('+5 minutes');
     }
 
     public function __toString(): string
@@ -56,10 +61,14 @@ class WechatOAuth2State implements \Stringable
         return sprintf('WechatOAuth2State[%s](%s)', $this->id, $this->state);
     }
 
-
     public function getState(): string
     {
         return $this->state;
+    }
+
+    public function setState(string $state): void
+    {
+        $this->state = $state;
     }
 
     public function getConfig(): WechatOAuth2Config
@@ -67,15 +76,19 @@ class WechatOAuth2State implements \Stringable
         return $this->config;
     }
 
+    public function setConfig(WechatOAuth2Config $config): void
+    {
+        $this->config = $config;
+    }
+
     public function getSessionId(): ?string
     {
         return $this->sessionId;
     }
 
-    public function setSessionId(?string $sessionId): static
+    public function setSessionId(?string $sessionId): void
     {
         $this->sessionId = $sessionId;
-        return $this;
     }
 
     public function isValid(): bool
@@ -83,10 +96,9 @@ class WechatOAuth2State implements \Stringable
         return $this->valid;
     }
 
-    public function setValid(bool $valid): static
+    public function setValid(bool $valid): void
     {
         $this->valid = $valid;
-        return $this;
     }
 
     public function isUsed(): bool
@@ -94,11 +106,10 @@ class WechatOAuth2State implements \Stringable
         return !$this->valid;
     }
 
-    public function markAsUsed(): static
+    public function markAsUsed(): void
     {
         $this->valid = false;
-        $this->usedTime = new \DateTime();
-        return $this;
+        $this->usedTime = new \DateTimeImmutable();
     }
 
     public function getUsedTime(): ?\DateTimeInterface
@@ -111,10 +122,9 @@ class WechatOAuth2State implements \Stringable
         return $this->expiresTime;
     }
 
-    public function setExpiresTime(\DateTimeInterface $expiresTime): static
+    public function setExpiresTime(\DateTimeInterface $expiresTime): void
     {
         $this->expiresTime = $expiresTime;
-        return $this;
     }
 
     public function isValidState(): bool
@@ -124,6 +134,6 @@ class WechatOAuth2State implements \Stringable
 
     public function isExpired(): bool
     {
-        return $this->expiresTime < new \DateTime();
+        return $this->expiresTime < new \DateTimeImmutable();
     }
 }

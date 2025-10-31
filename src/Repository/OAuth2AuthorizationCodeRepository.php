@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\OAuth2AuthorizationCode;
 
 /**
  * @extends ServiceEntityRepository<OAuth2AuthorizationCode>
  */
+#[AsRepository(entityClass: OAuth2AuthorizationCode::class)]
 class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -23,7 +27,7 @@ class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
 
     public function findValidByCode(string $code): ?OAuth2AuthorizationCode
     {
-        return $this->createQueryBuilder('ac')
+        $result = $this->createQueryBuilder('ac')
             ->where('ac.code = :code')
             ->andWhere('ac.used = :used')
             ->andWhere('ac.expiresAt > :now')
@@ -31,7 +35,11 @@ class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
             ->setParameter('used', false)
             ->setParameter('now', new \DateTime())
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getOneOrNullResult()
+        ;
+        assert($result instanceof OAuth2AuthorizationCode || null === $result);
+
+        return $result;
     }
 
     /**
@@ -39,13 +47,18 @@ class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
      */
     public function findExpiredCodes(?\DateTime $beforeDate = null): array
     {
-        $beforeDate = $beforeDate ?? new \DateTime();
-        
-        return $this->createQueryBuilder('ac')
+        $beforeDate ??= new \DateTime();
+
+        $result = $this->createQueryBuilder('ac')
             ->where('ac.expiresAt < :beforeDate')
             ->setParameter('beforeDate', $beforeDate)
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
+        assert(is_array($result));
+        /** @var array<OAuth2AuthorizationCode> $result */
+
+        return $result;
     }
 
     /**
@@ -58,27 +71,35 @@ class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
 
     public function deleteExpiredCodes(?\DateTime $beforeDate = null): int
     {
-        $beforeDate = $beforeDate ?? new \DateTime();
-        
-        return $this->createQueryBuilder('ac')
+        $beforeDate ??= new \DateTime();
+
+        $result = $this->createQueryBuilder('ac')
             ->delete()
             ->where('ac.expiresAt < :beforeDate')
             ->setParameter('beforeDate', $beforeDate)
             ->getQuery()
-            ->execute();
+            ->execute()
+        ;
+        assert(is_int($result));
+
+        return $result;
     }
 
     public function deleteUsedCodes(): int
     {
-        return $this->createQueryBuilder('ac')
+        $result = $this->createQueryBuilder('ac')
             ->delete()
             ->where('ac.used = :used')
             ->setParameter('used', true)
             ->getQuery()
-            ->execute();
+            ->execute()
+        ;
+        assert(is_int($result));
+
+        return $result;
     }
 
-    public function save(OAuth2AuthorizationCode $entity, bool $flush = false): void
+    public function save(OAuth2AuthorizationCode $entity, bool $flush = true): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -87,7 +108,7 @@ class OAuth2AuthorizationCodeRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(OAuth2AuthorizationCode $entity, bool $flush = false): void
+    public function remove(OAuth2AuthorizationCode $entity, bool $flush = true): void
     {
         $this->getEntityManager()->remove($entity);
 

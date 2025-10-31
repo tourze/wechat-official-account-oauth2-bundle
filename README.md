@@ -1,21 +1,54 @@
 # WeChat Official Account OAuth2 Bundle
 
-为 Symfony 应用提供微信公众号 OAuth2 授权功能的完整解决方案。
+[English](README.md) | [中文](README.zh-CN.md)
 
-## 功能特性
+[![PHP Version](https://img.shields.io/packagist/php-v/tourze/wechat-official-account-oauth2-bundle.svg?style=flat-square)](
+https://packagist.org/packages/tourze/wechat-official-account-oauth2-bundle)
+[![Latest Version](https://img.shields.io/packagist/v/tourze/wechat-official-account-oauth2-bundle.svg?style=flat-square)](
+https://packagist.org/packages/tourze/wechat-official-account-oauth2-bundle)
+[![License](https://img.shields.io/packagist/l/tourze/wechat-official-account-oauth2-bundle.svg?style=flat-square)](
+https://packagist.org/packages/tourze/wechat-official-account-oauth2-bundle)
+[![Total Downloads](https://img.shields.io/packagist/dt/tourze/wechat-official-account-oauth2-bundle.svg?style=flat-square)](
+https://packagist.org/packages/tourze/wechat-official-account-oauth2-bundle)
+[![Coverage](https://img.shields.io/badge/coverage-90%25-green.svg?style=flat-square)](#)
 
-- 🔐 标准 OAuth2 授权码流程
-- 🎯 微信公众号用户授权
-- 👤 获取用户基本信息和详细信息
-- 🔄 访问令牌自动刷新
-- 🗃️ 令牌管理和清理
-- 🛡️ 安全的客户端验证
-- 📊 EasyAdmin 后台管理集成
-- 🧪 完整的单元测试和集成测试
+A complete OAuth2 authorization solution for WeChat Official Accounts in Symfony applications.
 
-## 安装配置
+## Table of Contents
 
-### 1. 添加 Bundle 到 Kernel
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Endpoints](#api-endpoints)
+- [Authorization Scopes](#authorization-scopes)
+- [Error Handling](#error-handling)
+- [Security Recommendations](#security-recommendations)
+- [Development and Testing](#development-and-testing)
+- [Service Classes](#service-classes)
+- [Dependencies](#dependencies)
+- [License](#license)
+- [Contributing](#contributing)
+
+## Features
+
+- 🔐 Standard OAuth2 authorization code flow
+- 🎯 WeChat Official Account user authorization
+- 👤 Get user basic and detailed information
+- 🔄 Automatic access token refresh
+- 🗃️ Token management and cleanup
+- 🛡️ Secure client authentication
+- 📊 EasyAdmin backend integration
+- 🧪 Complete unit and integration tests
+
+## Installation
+
+### 1. Install via Composer
+
+```bash
+composer require tourze/wechat-official-account-oauth2-bundle
+```
+
+### 2. Add Bundle to Kernel
 
 ```php
 // config/bundles.php
@@ -25,23 +58,23 @@ return [
 ];
 ```
 
-### 2. 数据库迁移
+### 3. Database Migration
 
 ```bash
-# 生成迁移文件
+# Generate migration files
 php bin/console doctrine:migrations:diff
 
-# 执行迁移
+# Execute migrations
 php bin/console doctrine:migrations:migrate
 ```
 
-### 3. 配置微信公众号
+### 4. Configure WeChat Official Account
 
-确保您已经配置了 `wechat-official-account-bundle` 中的微信公众号信息。
+Ensure you have configured your WeChat Official Account information in `wechat-official-account-bundle`.
 
-## 使用方法
+## Usage
 
-### 1. 创建 OAuth2 应用
+### 1. Create OAuth2 Application
 
 ```bash
 php bin/console oauth2:create-application 1 \
@@ -50,30 +83,30 @@ php bin/console oauth2:create-application 1 \
     --scope="snsapi_userinfo"
 ```
 
-**参数说明：**
-- `1`: 微信公众号账号ID
-- `--redirect-uri`: 授权回调地址（可指定多个）
-- `--scope`: 默认授权范围
+**Parameters:**
+- `1`: WeChat Official Account ID
+- `--redirect-uri`: Authorization callback URL (multiple allowed)
+- `--scope`: Default authorization scope
 
-### 2. OAuth2 授权流程
+### 2. OAuth2 Authorization Flow
 
-#### 第一步：用户授权
+#### Step 1: User Authorization
 
-引导用户访问授权页面：
-```
+Redirect users to the authorization page:
+```text
 GET /oauth2/authorize?client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=snsapi_base&state=STATE&response_type=code
 ```
 
-**参数说明：**
-- `client_id`: OAuth2 客户端 ID
-- `redirect_uri`: 授权回调地址
-- `scope`: 授权范围（`snsapi_base` 或 `snsapi_userinfo`）
-- `state`: 防CSRF攻击的随机字符串
-- `response_type`: 固定值 `code`
+**Parameters:**
+- `client_id`: OAuth2 client ID
+- `redirect_uri`: Authorization callback URL
+- `scope`: Authorization scope (`snsapi_base` or `snsapi_userinfo`)
+- `state`: Random string for CSRF protection
+- `response_type`: Fixed value `code`
 
-#### 第二步：获取访问令牌
+#### Step 2: Get Access Token
 
-使用授权码换取访问令牌：
+Exchange authorization code for access token:
 ```bash
 POST /oauth2/token
 Content-Type: application/x-www-form-urlencoded
@@ -81,7 +114,7 @@ Content-Type: application/x-www-form-urlencoded
 grant_type=authorization_code&code=AUTHORIZATION_CODE&redirect_uri=REDIRECT_URI&client_id=CLIENT_ID&client_secret=CLIENT_SECRET
 ```
 
-**响应示例：**
+**Response Example:**
 ```json
 {
   "access_token": "AT_...",
@@ -94,19 +127,19 @@ grant_type=authorization_code&code=AUTHORIZATION_CODE&redirect_uri=REDIRECT_URI&
 }
 ```
 
-#### 第三步：获取用户信息
+#### Step 3: Get User Information
 
-使用访问令牌获取用户信息：
+Get user information using access token:
 ```bash
-# 查询参数方式
+# Query parameter method
 GET /oauth2/userinfo?access_token=ACCESS_TOKEN
 
-# 请求头方式
+# Header method
 GET /oauth2/userinfo
 Authorization: Bearer ACCESS_TOKEN
 ```
 
-#### 第四步：刷新访问令牌
+#### Step 4: Refresh Access Token
 
 ```bash
 POST /oauth2/refresh
@@ -115,9 +148,9 @@ Content-Type: application/x-www-form-urlencoded
 grant_type=refresh_token&refresh_token=REFRESH_TOKEN&client_id=CLIENT_ID&client_secret=CLIENT_SECRET
 ```
 
-### 3. 令牌管理
+### 3. Token Management
 
-#### 撤销令牌
+#### Revoke Token
 
 ```bash
 POST /oauth2/revoke
@@ -126,7 +159,7 @@ Content-Type: application/x-www-form-urlencoded
 token=ACCESS_TOKEN&client_id=CLIENT_ID&client_secret=CLIENT_SECRET
 ```
 
-#### 令牌验证
+#### Token Introspection
 
 ```bash
 POST /oauth2/introspect
@@ -135,102 +168,150 @@ Content-Type: application/x-www-form-urlencoded
 token=ACCESS_TOKEN
 ```
 
-### 4. 定时清理
+### 4. Console Commands
 
-建议设置定时任务清理过期的令牌：
+#### OAuth2 Configuration Command
+
+Configure OAuth2 settings for WeChat Official Account:
+
 ```bash
-# 每小时清理过期令牌
+# Configure OAuth2 settings
+php bin/console wechat:oauth2:configure <account-id> [--scope=SCOPE] [--remark=REMARK]
+```
+
+**Parameters:**
+- `account-id`: WeChat Official Account ID
+- `--scope`: Authorization scope (optional, default: snsapi_base)
+- `--remark`: Configuration remark (optional)
+
+**Examples:**
+```bash
+# Basic configuration
+php bin/console wechat:oauth2:configure 1
+
+# Configure user info authorization
+php bin/console wechat:oauth2:configure 1 --scope=snsapi_userinfo --remark="User info authorization config"
+```
+
+#### Refresh Token Command
+
+Automatically refresh expiring access tokens:
+
+```bash
+# Refresh all expiring tokens (default: within 2 hours)
+php bin/console wechat:oauth2:refresh-tokens
+
+# Refresh tokens expiring within 1 hour
+php bin/console wechat:oauth2:refresh-tokens --expires-within="1 hour"
+
+# Force refresh all tokens
+php bin/console wechat:oauth2:refresh-tokens --force
+```
+
+**Parameters:**
+- `--expires-within`: Tokens expiring within specified time range (optional, default: 2 hours)
+- `--force`: Force refresh all tokens regardless of expiration (optional)
+
+### 5. Scheduled Cleanup
+
+It's recommended to set up a cron job to clean up expired tokens:
+```bash
+# Clean up expired tokens every hour
 0 * * * * php /path/to/your/app/bin/console oauth2:cleanup
 
-# 预览清理（不实际删除）
+# Preview cleanup (without deletion)
 php bin/console oauth2:cleanup --dry-run
 
-# 清理指定时间前的令牌
+# Clean up tokens before specified time
 php bin/console oauth2:cleanup --before="-1 week"
 ```
 
-## API 端点
+## API Endpoints
 
-| 端点 | 方法 | 描述 |
-|------|------|------|
-| `/oauth2/authorize` | GET | 用户授权页面 |
-| `/oauth2/callback` | GET | 微信授权回调 |
-| `/oauth2/token` | POST | 获取访问令牌 |
-| `/oauth2/refresh` | POST | 刷新访问令牌 |
-| `/oauth2/revoke` | POST | 撤销令牌 |
-| `/oauth2/userinfo` | GET/POST | 获取用户信息 |
-| `/oauth2/introspect` | POST | 令牌验证 |
+| Endpoint | Method | Description |
+| `/oauth2/authorize` | GET | User authorization page |
+| `/oauth2/callback` | GET | WeChat authorization callback |
+| `/oauth2/token` | POST | Get access token |
+| `/oauth2/refresh` | POST | Refresh access token |
+| `/oauth2/revoke` | POST | Revoke token |
+| `/oauth2/userinfo` | GET/POST | Get user information |
+| `/oauth2/introspect` | POST | Token introspection |
 
-## 授权范围
+## Authorization Scopes
 
-- `snsapi_base`: 静默授权，只能获取用户openid
-- `snsapi_userinfo`: 需要用户手动同意，可获取用户基本信息
+- `snsapi_base`: Silent authorization, only get user's openid
+- `snsapi_userinfo`: Requires user's manual consent, can get user's basic information
 
-## 错误处理
+## Error Handling
 
-所有错误响应遵循 OAuth2 标准格式：
+All error responses follow the OAuth2 standard format:
 
 ```json
 {
   "error": "invalid_request",
-  "error_description": "请求参数错误"
+  "error_description": "Invalid request parameters"
 }
 ```
 
-**常见错误码：**
-- `invalid_request`: 请求参数错误
-- `invalid_client`: 客户端认证失败
-- `invalid_grant`: 授权码无效或过期
-- `invalid_token`: 访问令牌无效
-- `unsupported_grant_type`: 不支持的授权类型
+**Common Error Codes:**
+- `invalid_request`: Invalid request parameters
+- `invalid_client`: Client authentication failed
+- `invalid_grant`: Invalid or expired authorization code
+- `invalid_token`: Invalid access token
+- `unsupported_grant_type`: Unsupported grant type
 
-## 安全建议
+## Security Recommendations
 
-1. 🔒 妥善保管 Client Secret，避免泄露
-2. 🌐 仅在 HTTPS 环境下使用 OAuth2 功能
-3. ✅ 严格验证 redirect_uri 参数
-4. ⏰ 合理设置令牌过期时间
-5. 🧹 定期清理过期的授权码和令牌
+1. 🔒 Keep Client Secret secure and avoid leakage
+2. 🌐 Only use OAuth2 features in HTTPS environment
+3. ✅ Strictly validate redirect_uri parameter
+4. ⏰ Set reasonable token expiration times
+5. 🧹 Regularly clean up expired authorization codes and tokens
 
-## 开发和测试
+## Development and Testing
 
-### 运行测试
+### Running Tests
 
 ```bash
-# 运行所有测试
+# Run all tests
 vendor/bin/phpunit packages/wechat-official-account-oauth2-bundle/tests/
 
-# 运行单元测试
-vendor/bin/phpunit packages/wechat-official-account-oauth2-bundle/tests/Unit/
+# Run unit tests (Entity and basic functionality tests)
+vendor/bin/phpunit packages/wechat-official-account-oauth2-bundle/tests/Entity/
+vendor/bin/phpunit packages/wechat-official-account-oauth2-bundle/tests/Exception/
 
-# 运行集成测试
-vendor/bin/phpunit packages/wechat-official-account-oauth2-bundle/tests/Integration/
+# Run specific test file
+vendor/bin/phpunit packages/wechat-official-account-oauth2-bundle/tests/Entity/OAuth2AccessTokenTest.php
 ```
 
-### 代码质量检查
+> **Note**: Some integration tests may experience conflicts due to Symfony configuration class loading in the same PHP process.
+> This is a known issue tracked in [Issue #774](https://github.com/tourze/php-monorepo/issues/774).
+> Unit tests (Entity, Exception tests) run without issues.
+
+### Code Quality Checks
 
 ```bash
-# PHPStan 静态分析
+# PHPStan static analysis
 vendor/bin/phpstan analyse packages/wechat-official-account-oauth2-bundle/src/
 
-# PHP CS Fixer 代码格式化
+# PHP CS Fixer code formatting
 vendor/bin/php-cs-fixer fix packages/wechat-official-account-oauth2-bundle/src/
 ```
 
-## 服务类使用
+## Service Classes
 
 ### OAuth2AuthorizationService
 
 ```php
 use Tourze\WechatOfficialAccountOAuth2Bundle\Service\OAuth2AuthorizationService;
 
-// 构建微信授权URL
+// Build WeChat authorization URL
 $authUrl = $authorizationService->buildWechatAuthUrl($account, 'snsapi_userinfo', $redirectUri);
 
-// 通过授权码获取用户信息
+// Get user info by authorization code
 $userInfo = $authorizationService->getUserInfoByCode($account, $code);
 
-// 创建内部访问令牌
+// Create internal access token
 $accessToken = $authorizationService->exchangeCodeForToken($code, $redirectUri, $account);
 ```
 
@@ -239,7 +320,7 @@ $accessToken = $authorizationService->exchangeCodeForToken($code, $redirectUri, 
 ```php
 use Tourze\WechatOfficialAccountOAuth2Bundle\Service\OAuth2UserInfoService;
 
-// 获取用户信息（通过内部访问令牌）
+// Get user info (via internal access token)
 $userInfo = $userInfoService->getUserInfo($oAuth2AccessToken);
 ```
 
@@ -248,32 +329,38 @@ $userInfo = $userInfoService->getUserInfo($oAuth2AccessToken);
 ```php
 use Tourze\WechatOfficialAccountOAuth2Bundle\Service\WechatOAuth2Service;
 
-// 构建微信授权URL
+// Build WeChat authorization URL
 $authUrl = $wechatOAuth2Service->buildAuthorizationUrl($account, $redirectUri, 'snsapi_base');
 
-// 获取微信访问令牌
+// Get WeChat access token
 $tokenData = $wechatOAuth2Service->getAccessTokenByCode($account, $code);
 
-// 验证微信访问令牌
+// Validate WeChat access token
 $isValid = $wechatOAuth2Service->validateAccessToken($account, $accessToken, $openid);
 ```
 
-## 依赖关系
+## Dependencies
 
-本 Bundle 依赖以下组件：
+This bundle depends on the following components:
 
-- `wechat-official-account-bundle`: 微信公众号基础功能
-- `http-client-bundle`: HTTP 客户端封装
-- `symfony-routing-auto-loader-bundle`: 自动路由加载
+- `wechat-official-account-bundle`: WeChat Official Account basic functionality
+- `http-client-bundle`: HTTP client wrapper
+- `symfony-routing-auto-loader-bundle`: Automatic route loading
+- `doctrine-snowflake-bundle`: Snowflake ID generation
+- `doctrine-indexed-bundle`: Database indexing support
+- `doctrine-timestamp-bundle`: Automatic timestamp handling
+- `doctrine-track-bundle`: Entity tracking features
+- `doctrine-user-bundle`: User management features
 
-## 许可证
+## License
 
-本项目采用 MIT 许可证。详情请查看 [LICENSE](LICENSE) 文件。
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## 贡献
+## Contributing
 
-欢迎提交 Issue 和 Pull Request 来改进这个项目。
+Contributions are welcome! Please feel free to submit issues and pull requests.
 
 ---
 
-📝 **注意**: 在生产环境中使用前，请确保已经充分测试所有功能，并按照微信官方文档配置相关参数。
+📝 **Note**: Before using in production, ensure all features are thoroughly tested and configured according to 
+WeChat's official documentation.

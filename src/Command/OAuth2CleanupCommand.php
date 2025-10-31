@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,6 +24,7 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Repository\OAuth2AuthorizationCodeR
 class OAuth2CleanupCommand extends Command
 {
     public const NAME = 'oauth2:cleanup';
+
     public function __construct(
         private readonly OAuth2AccessTokenRepository $accessTokenRepository,
         private readonly OAuth2AuthorizationCodeRepository $authorizationCodeRepository,
@@ -44,7 +47,8 @@ class OAuth2CleanupCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 '清理指定时间之前的记录 (格式: Y-m-d H:i:s 或相对时间如 "-1 week")',
                 '-1 hour'
-            );
+            )
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -73,7 +77,7 @@ class OAuth2CleanupCommand extends Command
         if (!(bool) $dryRun) {
             $deletedExpiredCodes = $this->authorizationCodeRepository->deleteExpiredCodes($beforeDate);
             $deletedUsedCodes = $this->authorizationCodeRepository->deleteUsedCodes();
-            
+
             $io->success([
                 sprintf('已删除 %d 个过期的授权码', $deletedExpiredCodes),
                 sprintf('已删除 %d 个已使用的授权码', $deletedUsedCodes),
@@ -93,7 +97,7 @@ class OAuth2CleanupCommand extends Command
         if (!(bool) $dryRun) {
             $deletedExpiredTokens = $this->accessTokenRepository->deleteExpiredTokens($beforeDate);
             $deletedRevokedTokens = $this->accessTokenRepository->deleteRevokedTokens();
-            
+
             $io->success([
                 sprintf('已删除 %d 个过期的访问令牌', $deletedExpiredTokens),
                 sprintf('已删除 %d 个已撤销的访问令牌', $deletedRevokedTokens),
@@ -119,9 +123,7 @@ class OAuth2CleanupCommand extends Command
             try {
                 return new \DateTime($dateString);
             } catch (\Exception $e) {
-                throw new WechatOAuth2ConfigurationException(
-                    sprintf('无效的时间格式: %s. 请使用 Y-m-d H:i:s 格式或相对时间（如 "-1 week"）', $dateString)
-                );
+                throw new WechatOAuth2ConfigurationException(sprintf('无效的时间格式: %s. 请使用 Y-m-d H:i:s 格式或相对时间（如 "-1 week"）', $dateString));
             }
         }
     }

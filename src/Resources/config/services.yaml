@@ -6,11 +6,29 @@ services:
 
   Tourze\WechatOfficialAccountOAuth2Bundle\Command\:
     resource: '../../Command/'
-  Tourze\WechatOfficialAccountOAuth2Bundle\Controller\:
-    resource: '../../Controller/'
   Tourze\WechatOfficialAccountOAuth2Bundle\EventSubscriber\:
     resource: '../../EventSubscriber/'
   Tourze\WechatOfficialAccountOAuth2Bundle\Repository\:
     resource: '../../Repository/'
   Tourze\WechatOfficialAccountOAuth2Bundle\Service\:
     resource: '../../Service/'
+
+  # EasyAdmin Controllers
+  Tourze\WechatOfficialAccountOAuth2Bundle\Controller\Admin\:
+    resource: '../../Controller/Admin/'
+    tags: ['controller.service_arguments']
+
+  # Menu Provider
+  Tourze\WechatOfficialAccountOAuth2Bundle\Menu\WechatOAuth2MenuProvider:
+    tags: ['easy-admin-menu.provider']
+  
+  # Admin Menu
+  Tourze\WechatOfficialAccountOAuth2Bundle\Service\AdminMenu:
+    tags: ['easy-admin-menu.provider']
+
+  # OAuth2 Controllers
+  Tourze\WechatOfficialAccountOAuth2Bundle\Controller\WechatOAuth2AuthorizeController:
+    tags: ['controller.service_arguments']
+
+  Tourze\WechatOfficialAccountOAuth2Bundle\Controller\WechatOAuth2CallbackController:
+    tags: ['controller.service_arguments']

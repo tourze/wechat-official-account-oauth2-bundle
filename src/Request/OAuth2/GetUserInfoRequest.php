@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Request\OAuth2;
 
 use WechatOfficialAccountBundle\Request\WithAccountRequest;
@@ -12,7 +14,9 @@ use WechatOfficialAccountBundle\Request\WithAccountRequest;
 class GetUserInfoRequest extends WithAccountRequest
 {
     private string $openid;
+
     private string $accessToken;
+
     private string $lang = 'zh_CN';
 
     public function getRequestPath(): string
@@ -20,12 +24,15 @@ class GetUserInfoRequest extends WithAccountRequest
         return 'https://api.weixin.qq.com/sns/userinfo';
     }
 
+    /**
+     * @return ?array<string, mixed>
+     */
     public function getRequestOptions(): ?array
     {
         return [
             'query' => [
                 'access_token' => $this->getAccessToken(),
-                'openid' => $this->getOpenid(),
+                'openid' => $this->getOpenId(),
                 'lang' => $this->getLang(),
             ],
         ];
@@ -41,12 +48,12 @@ class GetUserInfoRequest extends WithAccountRequest
         $this->accessToken = $accessToken;
     }
 
-    public function getOpenid(): string
+    public function getOpenId(): string
     {
         return $this->openid;
     }
 
-    public function setOpenid(string $openid): void
+    public function setOpenId(string $openid): void
     {
         $this->openid = $openid;
     }

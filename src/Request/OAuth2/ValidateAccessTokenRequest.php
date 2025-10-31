@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Request\OAuth2;
 
 use HttpClientBundle\Request\ApiRequest;
@@ -12,6 +14,7 @@ use HttpClientBundle\Request\ApiRequest;
 class ValidateAccessTokenRequest extends ApiRequest
 {
     private string $accessToken;
+
     private string $openid;
 
     public function getRequestPath(): string
@@ -19,12 +22,15 @@ class ValidateAccessTokenRequest extends ApiRequest
         return 'https://api.weixin.qq.com/sns/auth';
     }
 
+    /**
+     * @return ?array<string, mixed>
+     */
     public function getRequestOptions(): ?array
     {
         return [
             'query' => [
                 'access_token' => $this->getAccessToken(),
-                'openid' => $this->getOpenid(),
+                'openid' => $this->getOpenId(),
             ],
         ];
     }
@@ -39,12 +45,12 @@ class ValidateAccessTokenRequest extends ApiRequest
         $this->accessToken = $accessToken;
     }
 
-    public function getOpenid(): string
+    public function getOpenId(): string
     {
         return $this->openid;
     }
 
-    public function setOpenid(string $openid): void
+    public function setOpenId(string $openid): void
     {
         $this->openid = $openid;
     }

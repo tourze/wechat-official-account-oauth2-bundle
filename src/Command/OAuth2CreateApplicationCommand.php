@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Command;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,6 +24,7 @@ use WechatOfficialAccountBundle\Repository\AccountRepository;
 class OAuth2CreateApplicationCommand extends Command
 {
     public const NAME = 'oauth2:create-application';
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly AccountRepository $accountRepository,
@@ -34,13 +37,14 @@ class OAuth2CreateApplicationCommand extends Command
         $this
             ->addArgument('wechat-account-id', InputArgument::REQUIRED, '微信公众号账号ID')
             ->addOption('redirect-uri', 'r', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, '回调URI（可多个）')
-            ->addOption('scope', 's', InputOption::VALUE_REQUIRED, '默认权限范围', 'snsapi_base');
+            ->addOption('scope', 's', InputOption::VALUE_REQUIRED, '默认权限范围', 'snsapi_base')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        
+
         $wechatAccountIdArg = $input->getArgument('wechat-account-id');
         $wechatAccountId = is_scalar($wechatAccountIdArg) ? (string) $wechatAccountIdArg : '';
         $redirectUris = $input->getOption('redirect-uri');
@@ -48,8 +52,9 @@ class OAuth2CreateApplicationCommand extends Command
 
         // 查找微信账号
         $wechatAccount = $this->accountRepository->find($wechatAccountId);
-        if ($wechatAccount === null) {
+        if (null === $wechatAccount) {
             $io->error(sprintf('微信公众号账号 ID "%s" 不存在', $wechatAccountId));
+
             return Command::FAILURE;
         }
 
@@ -67,17 +72,17 @@ class OAuth2CreateApplicationCommand extends Command
                     oauth2_scopes = :scopes
                 WHERE id = :id
             ';
-            
+
             $this->entityManager->getConnection()->executeStatement($sql, [
                 'id' => $wechatAccount->getId(),
                 'clientId' => $clientId,
                 'clientSecret' => $clientSecret,
                 'redirectUris' => is_array($redirectUris) ? implode("\n", $redirectUris) : null,
-                'scopes' => $scope
+                'scopes' => $scope,
             ]);
 
             $io->success('OAuth2配置创建成功！');
-            
+
             $io->table(
                 ['属性', '值'],
                 [
@@ -91,12 +96,13 @@ class OAuth2CreateApplicationCommand extends Command
 
             $io->warning([
                 '请妥善保管 Client Secret，它不会再次显示。',
-                '如果丢失，您需要重新生成新的凭据。'
+                '如果丢失，您需要重新生成新的凭据。',
             ]);
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $io->error('创建OAuth2配置失败: ' . $e->getMessage());
+
             return Command::FAILURE;
         }
     }

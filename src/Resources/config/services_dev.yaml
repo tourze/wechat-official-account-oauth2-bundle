@@ -1,0 +1,9 @@
+services:
+  # DataFixtures 服务仅在开发环境中可用
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Tourze\WechatOfficialAccountOAuth2Bundle\DataFixtures\:
+    resource: '../../DataFixtures'
+    tags: ['doctrine.fixture.orm']
