@@ -64,8 +64,7 @@ final class WechatOAuth2ConfigCrudControllerTest extends AbstractEasyAdminContro
 
     public function testValidationErrors(): void
     {
-        $client = self::createClientWithDatabase();
-        $this->loginAsAdmin($client);
+        $client = self::createAuthenticatedClient();
 
         try {
             $client->request('POST', '/admin/wechat-oauth2/config/new', [

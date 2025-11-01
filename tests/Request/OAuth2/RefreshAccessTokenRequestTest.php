@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Tourze\WechatOfficialAccountOAuth2Bundle\Tests\Request\OAuth2;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
-use HttpClientBundle\Tests\Request\RequestTestCase;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Request\OAuth2\RefreshAccessTokenRequest;
 use WechatOfficialAccountBundle\Entity\Account;
 
