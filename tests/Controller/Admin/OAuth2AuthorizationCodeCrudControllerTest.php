@@ -100,11 +100,10 @@ final class OAuth2AuthorizationCodeCrudControllerTest extends AbstractEasyAdminC
     {
         $client = $this->createAuthenticatedClient();
 
-        // 当尝试访问不存在的实体进行编辑时，EasyAdmin会先尝试加载实体
-        // 由于实体不存在，会抛出EntityNotFoundException而不是ForbiddenActionException
-        // 这个行为仍然是正确的，因为EDIT操作实际上被禁用了
-        $this->expectException(\EasyCorp\Bundle\EasyAdminBundle\Exception\EntityNotFoundException::class);
-        $this->expectExceptionMessage('The "Tourze\WechatOfficialAccountOAuth2Bundle\Entity\OAuth2AuthorizationCode" entity with "id = 1" does not exist in the database');
+        // EasyAdmin 会在尝试加载实体之前先检查动作权限
+        // 由于EDIT动作被禁用，会抛出ForbiddenActionException
+        $this->expectException(\EasyCorp\Bundle\EasyAdminBundle\Exception\ForbiddenActionException::class);
+        $this->expectExceptionMessage('You don\'t have enough permissions to run the "edit" action');
 
         $client->request('GET', $this->generateAdminUrl(Action::EDIT, ['entityId' => '1']));
     }

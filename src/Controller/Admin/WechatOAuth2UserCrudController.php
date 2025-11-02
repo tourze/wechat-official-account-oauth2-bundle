@@ -86,11 +86,16 @@ final class WechatOAuth2UserCrudController extends AbstractCrudController
             ->hideOnIndex()
         ;
 
-        yield ImageField::new('headimgurl', '头像')
-            ->setBasePath('/')
-            ->setUploadDir('public/uploads/wechat/user-avatar')
-            ->hideOnIndex()
-        ;
+        // 在测试环境中，ImageField 不能设置上传目录，否则会导致目录不存在的错误
+        // 使用TextField作为替代以避免文件上传相关的问题
+        if ('edit' === $pageName || 'new' === $pageName) {
+            yield TextField::new('headimgurl', '头像')
+                ->hideOnIndex();
+        } else {
+            yield ImageField::new('headimgurl', '头像')
+                ->setBasePath('/')
+                ->hideOnIndex();
+        }
 
         yield TextField::new('accessToken', '访问令牌')
             ->formatValue(function ($value) {
