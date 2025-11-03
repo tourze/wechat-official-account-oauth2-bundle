@@ -90,11 +90,13 @@ final class WechatOAuth2UserCrudController extends AbstractCrudController
         // 使用TextField作为替代以避免文件上传相关的问题
         if ('edit' === $pageName || 'new' === $pageName) {
             yield TextField::new('headimgurl', '头像')
-                ->hideOnIndex();
+                ->hideOnIndex()
+            ;
         } else {
             yield ImageField::new('headimgurl', '头像')
                 ->setBasePath('/')
-                ->hideOnIndex();
+                ->hideOnIndex()
+            ;
         }
 
         yield TextField::new('accessToken', '访问令牌')
