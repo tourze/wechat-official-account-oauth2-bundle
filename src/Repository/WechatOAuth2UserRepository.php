@@ -7,6 +7,9 @@ namespace Tourze\WechatOfficialAccountOAuth2Bundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
+use Tourze\WechatOfficialAccountContracts\OfficialAccountInterface;
+use Tourze\WechatOfficialAccountContracts\UserInterface;
+use Tourze\WechatOfficialAccountContracts\UserLoaderInterface;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\WechatOAuth2Config;
 use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\WechatOAuth2User;
 
@@ -14,24 +17,27 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\WechatOAuth2User;
  * @extends ServiceEntityRepository<WechatOAuth2User>
  */
 #[AsRepository(entityClass: WechatOAuth2User::class)]
-class WechatOAuth2UserRepository extends ServiceEntityRepository
+class WechatOAuth2UserRepository extends ServiceEntityRepository implements UserLoaderInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, WechatOAuth2User::class);
     }
 
-    public function findByOpenid(string $openid): ?WechatOAuth2User
+    public function loadUserByOpenId(string $openId): ?WechatOAuth2User
     {
-        return $this->findOneBy(['openid' => $openid]);
+        return $this->findOneBy(['openid' => $openId]);
     }
 
-    /**
-     * @return array<WechatOAuth2User>
-     */
-    public function findByUnionid(string $unionid): array
+    public function loadUserByUnionId(string $unionId): ?WechatOAuth2User
     {
-        return $this->findBy(['unionid' => $unionid]);
+        return $this->findOneBy(['unionid' => $unionId]);
+    }
+
+    public function syncUserByOpenId(OfficialAccountInterface $officialAccount, string $openId): ?UserInterface
+    {
+        // TODO: Implement syncUserByOpenId() method.
+        throw new \RuntimeException('暂时没实现');
     }
 
     /**

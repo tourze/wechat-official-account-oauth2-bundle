@@ -212,7 +212,7 @@ class WechatOAuth2Service
      */
     public function getUserInfo(string $openid, bool $forceRefresh = false): array
     {
-        $user = $this->userRepository->findByOpenid($openid);
+        $user = $this->userRepository->loadUserByOpenId($openid);
         if (null === $user) {
             throw new OAuth2Exception('User not found', 0, null, ['openid' => $openid]);
         }
@@ -223,7 +223,7 @@ class WechatOAuth2Service
 
         if ($user->isTokenExpired()) {
             $this->refreshToken($openid);
-            $user = $this->userRepository->findByOpenid($openid);
+            $user = $this->userRepository->loadUserByOpenId($openid);
             if (null === $user) {
                 throw new OAuth2Exception('User not found after token refresh', 0, null, ['openid' => $openid]);
             }
@@ -278,7 +278,7 @@ class WechatOAuth2Service
      */
     public function refreshToken(string $openid): bool
     {
-        $user = $this->userRepository->findByOpenid($openid);
+        $user = $this->userRepository->loadUserByOpenId($openid);
         if (null === $user) {
             return false;
         }

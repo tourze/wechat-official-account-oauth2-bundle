@@ -401,31 +401,13 @@ final class WechatOAuth2UserRepositoryTest extends AbstractRepositoryTestCase
         $user = $this->createWechatUser(['openid' => 'test_openid']);
         $this->persistAndFlush($user);
 
-        $result = $this->repository->findByOpenid('test_openid');
+        $result = $this->repository->loadUserByOpenId('test_openid');
 
         $this->assertInstanceOf(WechatOAuth2User::class, $result);
         $this->assertEquals('test_openid', $result->getOpenId());
 
-        $nullResult = $this->repository->findByOpenid('nonexistent_openid');
+        $nullResult = $this->repository->loadUserByOpenId('nonexistent_openid');
         $this->assertNull($nullResult);
-    }
-
-    public function testFindByUnionid(): void
-    {
-        $user1 = $this->createWechatUser(['openid' => 'openid1', 'unionid' => 'test_unionid']);
-        $user2 = $this->createWechatUser(['openid' => 'openid2', 'unionid' => 'test_unionid']);
-        $this->persistAndFlush($user1);
-        $this->persistAndFlush($user2);
-
-        $result = $this->repository->findByUnionid('test_unionid');
-
-        $this->assertIsArray($result);
-        $this->assertCount(2, $result);
-        $this->assertContainsOnlyInstancesOf(WechatOAuth2User::class, $result);
-
-        $emptyResult = $this->repository->findByUnionid('nonexistent_unionid');
-        $this->assertIsArray($emptyResult);
-        $this->assertEmpty($emptyResult);
     }
 
     public function testFindExpiredTokenUsers(): void
@@ -508,7 +490,7 @@ final class WechatOAuth2UserRepositoryTest extends AbstractRepositoryTestCase
 
         $this->repository->save($user);
 
-        $found = $this->repository->findByOpenid('test_save_openid');
+        $found = $this->repository->loadUserByOpenId('test_save_openid');
         $this->assertInstanceOf(WechatOAuth2User::class, $found);
         $this->assertEquals('test_save_openid', $found->getOpenId());
     }
@@ -520,7 +502,7 @@ final class WechatOAuth2UserRepositoryTest extends AbstractRepositoryTestCase
         $this->repository->save($user, false);
         self::getEntityManager()->flush();
 
-        $found = $this->repository->findByOpenid('test_save_no_flush');
+        $found = $this->repository->loadUserByOpenId('test_save_no_flush');
         $this->assertInstanceOf(WechatOAuth2User::class, $found);
     }
 
@@ -531,7 +513,7 @@ final class WechatOAuth2UserRepositoryTest extends AbstractRepositoryTestCase
 
         $this->repository->remove($user);
 
-        $found = $this->repository->findByOpenid('test_remove_openid');
+        $found = $this->repository->loadUserByOpenId('test_remove_openid');
         $this->assertNull($found);
     }
 
