@@ -108,7 +108,7 @@ final class OAuth2ConfigureCommandTest extends AbstractCommandTestCase
         $this->command = $command;
 
         $application = new Application();
-        $application->add($this->command);
+        $application->addCommand($this->command);
 
         $command = $application->find('wechat:oauth2:configure');
         $this->commandTester = new CommandTester($command);

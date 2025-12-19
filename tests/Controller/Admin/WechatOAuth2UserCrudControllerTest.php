@@ -23,9 +23,6 @@ use Tourze\WechatOfficialAccountOAuth2Bundle\Entity\WechatOAuth2User;
 #[RunTestsInSeparateProcesses]
 final class WechatOAuth2UserCrudControllerTest extends AbstractEasyAdminControllerTestCase
 {
-    /**
-     * @phpstan-ignore-next-line
-     */
     protected function getControllerService(): AbstractCrudController
     {
         return self::getService(WechatOAuth2UserCrudController::class);

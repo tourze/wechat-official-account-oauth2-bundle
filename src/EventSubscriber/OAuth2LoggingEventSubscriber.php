@@ -52,7 +52,7 @@ class OAuth2LoggingEventSubscriber implements EventSubscriberInterface
         }
 
         $clientId = $this->extractClientId($request);
-        $grantType = $request->get('grant_type');
+        $grantType = $request->request->get('grant_type') ?? $request->query->get('grant_type');
         $responseType = $request->query->get('response_type');
 
         $this->logger->info('OAuth2 request received', [
@@ -129,7 +129,7 @@ class OAuth2LoggingEventSubscriber implements EventSubscriberInterface
 
     private function extractClientId(Request $request): ?string
     {
-        $clientId = $request->get('client_id') ?? $request->query->get('client_id');
+        $clientId = $request->request->get('client_id') ?? $request->query->get('client_id');
 
         return is_string($clientId) ? $clientId : null;
     }

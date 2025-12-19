@@ -83,7 +83,7 @@ final class OAuth2CleanupCommandTest extends AbstractCommandTestCase
         $this->assertInstanceOf(OAuth2CleanupCommand::class, $command);
 
         $application = new Application();
-        $application->add($command);
+        $application->addCommand($command);
 
         $command = $application->find('oauth2:cleanup');
         $this->commandTester = new CommandTester($command);

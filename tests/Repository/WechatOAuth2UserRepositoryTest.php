@@ -396,7 +396,7 @@ final class WechatOAuth2UserRepositoryTest extends AbstractRepositoryTestCase
 
     // ==================== 自定义方法测试 ====================
 
-    public function testFindByOpenid(): void
+    public function testLoadUserByOpenId(): void
     {
         $user = $this->createWechatUser(['openid' => 'test_openid']);
         $this->persistAndFlush($user);
@@ -408,6 +408,31 @@ final class WechatOAuth2UserRepositoryTest extends AbstractRepositoryTestCase
 
         $nullResult = $this->repository->loadUserByOpenId('nonexistent_openid');
         $this->assertNull($nullResult);
+    }
+
+    public function testLoadUserByUnionId(): void
+    {
+        $user = $this->createWechatUser([
+            'openid' => 'test_openid_with_unionid',
+            'unionid' => 'test_union_id',
+        ]);
+        $this->persistAndFlush($user);
+
+        $result = $this->repository->loadUserByUnionId('test_union_id');
+
+        $this->assertInstanceOf(WechatOAuth2User::class, $result);
+        $this->assertEquals('test_union_id', $result->getUnionId());
+
+        $nullResult = $this->repository->loadUserByUnionId('nonexistent_unionid');
+        $this->assertNull($nullResult);
+    }
+
+    public function testSyncUserByOpenIdThrowsRuntimeException(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('暂时没实现');
+
+        $this->repository->syncUserByOpenId($this->account, 'test_openid');
     }
 
     public function testFindExpiredTokenUsers(): void

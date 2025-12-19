@@ -85,7 +85,7 @@ final class OAuth2CreateApplicationCommandTest extends AbstractCommandTestCase
         $this->command = $command;
 
         $application = new Application();
-        $application->add($this->command);
+        $application->addCommand($this->command);
 
         $command = $application->find('oauth2:create-application');
         $this->commandTester = new CommandTester($command);

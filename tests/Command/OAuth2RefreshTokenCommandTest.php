@@ -74,7 +74,7 @@ final class OAuth2RefreshTokenCommandTest extends AbstractCommandTestCase
         $this->assertInstanceOf(OAuth2RefreshTokenCommand::class, $command);
 
         $application = new Application();
-        $application->add($command);
+        $application->addCommand($command);
 
         $command = $application->find('wechat:oauth2:refresh-tokens');
         $this->commandTester = new CommandTester($command);
